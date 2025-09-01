@@ -1,77 +1,89 @@
-﻿using Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Data;
 using Domain.Model;
-
-
+using DTOs;
 
 namespace Domain.Services
 {
     public class EspecialidadService
     {
-        public void Add(Especialidad especialidad)
+        public EspecialidadDTO Add(EspecialidadDTO dto)
         {
-            especialidad.SetId_especialidad(GetNextId());
+            var especialidadRepository = new EspecialidadRepository();
 
-            EspecialidadInMemory.Especialidades.Add(especialidad);
+            if (especialidadRepository.DescriptionExists(dto.Desc_esp))
+            {
+                throw new ArgumentException("Ya existe una especialidad con esa descripción.", nameof(dto.Desc_esp));
+            }
+
+            Especialidad especialidad = new Especialidad(0, dto.Desc_esp);
+
+            especialidadRepository.Add(especialidad);
+
+            dto.Id_especialidad = especialidad.Id_especialidad; // Asignar el Id generado al DTO
+
+            return dto;
         }
 
         public bool Delete(int id)
         {
-            Especialidad? especialidadToDelete = EspecialidadInMemory.Especialidades.Find(x => x.Id_especialidad == id);
-
-            if (especialidadToDelete != null)
-            {
-                EspecialidadInMemory.Especialidades.Remove(especialidadToDelete);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            var especialidadRepository = new EspecialidadRepository();
+            return especialidadRepository.Delete(id);
         }
 
-        public Especialidad Get(int id)
+        public EspecialidadDTO Get(int id)
         {
-            // Devuelve la especialidad con el id indicado
-            return EspecialidadInMemory.Especialidades.Find(x => x.Id_especialidad == id);
+            var especialidadRepository = new EspecialidadRepository();
+            Especialidad? especialidad = especialidadRepository.Get(id);
+            if (especialidad == null)
+                return null;
+
+            return new EspecialidadDTO
+            {
+                Id_especialidad = especialidad.Id_especialidad,
+                Desc_esp = especialidad.Desc_esp
+            };
         }
 
-        public IEnumerable<Especialidad> GetAll()
+        public IEnumerable<EspecialidadDTO> GetAll()
         {
-            // Devuelve una lista nueva cada vez que se llama a GetAll
-            return EspecialidadInMemory.Especialidades.ToList();
+            var especialidadRepository = new EspecialidadRepository();
+            return especialidadRepository.GetAll().Select(especialidad => new EspecialidadDTO
+            {
+                Id_especialidad = especialidad.Id_especialidad,
+                Desc_esp = especialidad.Desc_esp
+            }).ToList();
         }
 
-        public bool Update(Especialidad especialidad)
+        public bool Update(EspecialidadDTO dto)
         {
-            Especialidad? especialidadToUpdate = EspecialidadInMemory.Especialidades.Find(x => x.Id_especialidad == especialidad.Id_especialidad);
+            var especialidadRepository = new EspecialidadRepository();
 
-            if (especialidadToUpdate != null)
+            if (especialidadRepository.DescriptionExists(dto.Desc_esp, dto.Id_especialidad))
             {
-                especialidadToUpdate.SetDesc_esp(especialidad.Desc_esp);
-                return true;
+                throw new ArgumentException("Ya existe una especialidad con esa descripción.", nameof(dto.Desc_esp));
             }
-            else
-            {
-                return false;
-            }
+
+            Especialidad especialidad = new Especialidad(dto.Id_especialidad, dto.Desc_esp);
+            return especialidadRepository.Update(especialidad);
         }
-        private static int GetNextId()
+
+        public IEnumerable<EspecialidadDTO> GetByCriteria(EspecialidadCriteriaDTO criteriaDTO)
         {
-            int nextId;
+            var especialidadRepository = new EspecialidadRepository();
 
-            if (EspecialidadInMemory.Especialidades.Count > 0)
-            {
-                nextId = EspecialidadInMemory.Especialidades.Max(x => x.Id_especialidad) + 1;
-            }
-            else
-            {
-                nextId = 1;
-            }
+            var criteria = new EspecialidadCriteria(criteriaDTO.Texto);
 
-            return nextId;
+            var especialidades = especialidadRepository.GetByCriteria(criteria);
+
+            return especialidades.Select(especialidad => new EspecialidadDTO
+            {
+                Id_especialidad = especialidad.Id_especialidad,
+                Desc_esp = especialidad.Desc_esp
+            }).ToList();
         }
-
     }
 }
 

@@ -1,8 +1,6 @@
 using Domain.Model;
 using Domain.Services;
-
-
-
+using DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpLogging(o => { });
+
+// Add CORS for Blazor WebAssembly
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorWasm",
+        policy =>
+        {
+            policy.WithOrigins("https://localhost:7003", "http://localhost:5255")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 var app = builder.Build();
 
@@ -25,38 +35,25 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Use CORS
+app.UseCors("AllowBlazorWasm");
 
-
-
-app.MapGet("/personas/{id_persona}", (int id_persona) =>
+// ================= PERSONAS CRUD =================
+app.MapGet("/personas/{id}", (int id) =>
 {
     PersonaService personaService = new PersonaService();
 
-    Persona persona = personaService.Get(id_persona);
+    PersonaDTO dto = personaService.Get(id);
 
-    if (persona == null)
+    if (dto == null)
     {
         return Results.NotFound();
     }
 
-    var dto = new DTOs.Persona
-    {
-        Id_persona = persona.Id_persona,
-        Legajo = persona.Legajo,
-        Nombre = persona.Nombre,
-        Apellido = persona.Apellido,
-        Email = persona.Email,
-        Direccion = persona.Direccion,
-        Telefono = persona.Telefono,
-        Tipo_persona = persona.Tipo_persona,
-        Fecha_nac = persona.Fecha_nac,
-        Id_plan = persona.Id_plan,
-    };
-
     return Results.Ok(dto);
 })
 .WithName("GetPersona")
-.Produces<DTOs.Persona>(StatusCodes.Status200OK)
+.Produces<PersonaDTO>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status404NotFound);
 
 app.MapGet("/personas", () =>
@@ -65,62 +62,20 @@ app.MapGet("/personas", () =>
 
     var personas = personaService.GetAll();
 
-    var dtos = personas.Select(persona => new DTOs.Persona
-    {
-        Id_persona = persona.Id_persona,
-        Nombre = persona.Nombre,
-        Apellido = persona.Apellido,
-        Email = persona.Email,
-        Fecha_nac = persona.Fecha_nac,
-        Direccion = persona.Direccion,
-        Telefono = persona.Telefono,
-        Legajo = persona.Legajo,
-        Tipo_persona = persona.Tipo_persona,
-        Id_plan = persona.Id_plan
-    }).ToList();
-
-
-    return Results.Ok(dtos);
+    return Results.Ok(personas);
 })
 .WithName("GetAllPersonas")
-.Produces<List<DTOs.Persona>>(StatusCodes.Status200OK);
+.Produces<List<PersonaDTO>>(StatusCodes.Status200OK);
 
-app.MapPost("/personas", (DTOs.Persona dto) =>
+app.MapPost("/personas", (PersonaDTO dto) =>
 {
     try
     {
         var personaService = new PersonaService();
 
-        var persona = new Persona(
-            dto.Id_persona,
-            dto.Nombre,
-            dto.Apellido,
-            dto.Direccion,
-            dto.Email,
-            dto.Telefono,
-            dto.Fecha_nac,
-            dto.Legajo,
-            dto.Tipo_persona,
-            dto.Id_plan
-        );
+        PersonaDTO personaDto = personaService.Add(dto);
 
-        personaService.Add(persona);
-
-        var dtoResultado = new DTOs.Persona
-        {
-            Id_persona = persona.Id_persona,
-            Legajo = persona.Legajo,
-            Nombre = persona.Nombre,
-            Apellido = persona.Apellido,
-            Email = persona.Email,
-            Direccion = persona.Direccion,
-            Telefono = persona.Telefono,
-            Tipo_persona = persona.Tipo_persona,
-            Fecha_nac = persona.Fecha_nac,
-            Id_plan = persona.Id_plan,
-        };
-
-        return Results.Created($"/personas/{dtoResultado.Id_persona}", dtoResultado);
+        return Results.Created($"/personas/{personaDto.Id_persona}", personaDto);
     }
     catch (ArgumentException ex)
     {
@@ -128,30 +83,16 @@ app.MapPost("/personas", (DTOs.Persona dto) =>
     }
 })
 .WithName("AddPersona")
-.Produces<DTOs.Persona>(StatusCodes.Status201Created)
+.Produces<PersonaDTO>(StatusCodes.Status201Created)
 .Produces(StatusCodes.Status400BadRequest);
 
-
-app.MapPut("/personas", (DTOs.Persona dto) =>
+app.MapPut("/personas", (PersonaDTO dto) =>
 {
     try
     {
         var personaService = new PersonaService();
 
-        var persona = new Persona(
-            dto.Id_persona,
-            dto.Nombre,
-            dto.Apellido,
-            dto.Direccion,
-            dto.Email,
-            dto.Telefono,
-            dto.Fecha_nac,
-            dto.Legajo,
-            dto.Tipo_persona,
-            dto.Id_plan
-        );
-
-        var found = personaService.Update(persona);
+        var found = personaService.Update(dto);
 
         if (!found)
             return Results.NotFound();
@@ -168,7 +109,6 @@ app.MapPut("/personas", (DTOs.Persona dto) =>
 .Produces(StatusCodes.Status404NotFound)
 .Produces(StatusCodes.Status400BadRequest);
 
-
 app.MapDelete("/personas/{id_persona}", (int id_persona) =>
 {
     var personaService = new PersonaService();
@@ -184,74 +124,63 @@ app.MapDelete("/personas/{id_persona}", (int id_persona) =>
 .Produces(StatusCodes.Status204NoContent)
 .Produces(StatusCodes.Status404NotFound);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+app.MapGet("/personas/criteria", (string texto) =>
+{
+    try
+    {
+        var personaService = new PersonaService();
+        var criteriaDTO = new PersonaCriteriaDTO { Texto = texto };
+        var personas = personaService.GetByCriteria(criteriaDTO);
+
+        return Results.Ok(personas);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("GetPersonasByCriteria")
+.Produces<List<PersonaDTO>>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
+
+// ================= PLANES CRUD =================
 app.MapGet("/planes/{id_plan}", (int id_plan) =>
 {
     PlanService planService = new PlanService();
 
-    Plan plan = planService.Get(id_plan);
+    PlanDTO dto = planService.Get(id_plan);
 
-    if (plan == null)
+    if (dto == null)
     {
         return Results.NotFound();
     }
 
-    var dto = new DTOs.Plan
-    {
-
-        Id_plan = plan.Id_plan,
-        Desc_plan = plan.Desc_plan,
-        Id_especialidad = plan.Id_especialidad,
-    };
-
     return Results.Ok(dto);
 })
 .WithName("GetPlan")
-.Produces<DTOs.Plan>(StatusCodes.Status200OK)
+.Produces<PlanDTO>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status404NotFound);
 
 app.MapGet("/planes", () =>
 {
     PlanService planService = new PlanService();
 
-    var planes = planService.GetAll();
-
-    var dtos = planes.Select(plan => new DTOs.Plan
-    {
-        Id_plan = plan.Id_plan,
-        Desc_plan = plan.Desc_plan,
-        Id_especialidad = plan.Id_especialidad,
-    }).ToList();
-
+    var dtos = planService.GetAll();
 
     return Results.Ok(dtos);
 })
 .WithName("GetAllPlanes")
-.Produces<List<DTOs.Plan>>(StatusCodes.Status200OK);
+.Produces<List<PlanDTO>>(StatusCodes.Status200OK);
 
-app.MapPost("/planes", (DTOs.Plan dto) =>
+app.MapPost("/planes", (PlanDTO dto) =>
 {
     try
     {
-        var planService = new PlanService();
+        PlanService planService = new PlanService();
 
-        var plan = new Plan(
-            dto.Id_plan,
-            dto.Desc_plan,
-            dto.Id_especialidad
+        PlanDTO planDto = planService.Add(dto);
 
-        );
-
-        planService.Add(plan);
-
-        var dtoResultado = new DTOs.Plan
-        {
-            Id_plan = plan.Id_plan,
-            Desc_plan = plan.Desc_plan,
-            Id_especialidad = plan.Id_especialidad,
-        };
-
-        return Results.Created($"/planes/{dtoResultado.Id_plan}", dtoResultado);
+        return Results.Created($"/planes/{planDto.Id_plan}", planDto);
     }
     catch (ArgumentException ex)
     {
@@ -259,23 +188,16 @@ app.MapPost("/planes", (DTOs.Plan dto) =>
     }
 })
 .WithName("AddPlan")
-.Produces<DTOs.Plan>(StatusCodes.Status201Created)
+.Produces<PlanDTO>(StatusCodes.Status201Created)
 .Produces(StatusCodes.Status400BadRequest);
 
-
-app.MapPut("/planes", (DTOs.Plan dto) =>
+app.MapPut("/planes", (PlanDTO dto) =>
 {
     try
     {
         var planService = new PlanService();
 
-        var plan = new Plan(
-            dto.Id_plan,
-            dto.Desc_plan,
-            dto.Id_especialidad
-        );
-
-        var found = planService.Update(plan);
+        var found = planService.Update(dto);
 
         if (!found)
             return Results.NotFound();
@@ -292,7 +214,6 @@ app.MapPut("/planes", (DTOs.Plan dto) =>
 .Produces(StatusCodes.Status404NotFound)
 .Produces(StatusCodes.Status400BadRequest);
 
-
 app.MapDelete("/planes/{id_plan}", (int id_plan) =>
 {
     var planService = new PlanService();
@@ -308,30 +229,41 @@ app.MapDelete("/planes/{id_plan}", (int id_plan) =>
 .Produces(StatusCodes.Status204NoContent)
 .Produces(StatusCodes.Status404NotFound);
 
+app.MapGet("/planes/criteria", (string texto) =>
+{
+    try
+    {
+        var planService = new PlanService();
+        var criteriaDTO = new PlanCriteriaDTO { Texto = texto };
+        var planes = planService.GetByCriteria(criteriaDTO);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        return Results.Ok(planes);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("GetPlanesByCriteria")
+.Produces<List<PlanDTO>>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
+
+// ================= ESPECIALIDADES CRUD =================
 app.MapGet("/especialidades/{id_esp}", (int id_esp) =>
 {
     EspecialidadService especialidadService = new EspecialidadService();
 
-    Especialidad especialidad = especialidadService.Get(id_esp);
+    EspecialidadDTO dto = especialidadService.Get(id_esp);
 
-    if (especialidad == null)
+    if (dto == null)
     {
         return Results.NotFound();
     }
 
-    var dto = new DTOs.Especialidad
-    {
-
-        Id_especialidad = especialidad.Id_especialidad,
-        Desc_esp = especialidad.Desc_esp,
-    };
-
     return Results.Ok(dto);
 })
 .WithName("GetEspecialidad")
-.Produces<DTOs.Plan>(StatusCodes.Status200OK)
+.Produces<EspecialidadDTO>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status404NotFound);
 
 app.MapGet("/especialidades", () =>
@@ -340,41 +272,20 @@ app.MapGet("/especialidades", () =>
 
     var especialidades = especialidadService.GetAll();
 
-    var dtos = especialidades.Select(especialidad => new DTOs.Especialidad
-    {
-        Id_especialidad = especialidad.Id_especialidad,
-        Desc_esp = especialidad.Desc_esp,
-
-    }).ToList();
-
-
-    return Results.Ok(dtos);
+    return Results.Ok(especialidades);
 })
 .WithName("GetAllEspecialidades")
-.Produces<List<DTOs.Especialidad>>(StatusCodes.Status200OK);
+.Produces<List<EspecialidadDTO>>(StatusCodes.Status200OK);
 
-app.MapPost("/especialidades", (DTOs.Especialidad dto) =>
+app.MapPost("/especialidades", (EspecialidadDTO dto) =>
 {
     try
     {
         var especialidadService = new EspecialidadService();
 
-        var especialidad = new Especialidad(
-            dto.Id_especialidad,
-            dto.Desc_esp
+        EspecialidadDTO especialidadDto = especialidadService.Add(dto);
 
-        );
-
-        especialidadService.Add(especialidad);
-
-        var dtoResultado = new DTOs.Especialidad
-        {
-            Id_especialidad = especialidad.Id_especialidad,
-            Desc_esp = especialidad.Desc_esp,
-
-        };
-
-        return Results.Created($"/especialidades/{dtoResultado.Id_especialidad}", dtoResultado);
+        return Results.Created($"/especialidades/{especialidadDto.Id_especialidad}", especialidadDto);
     }
     catch (ArgumentException ex)
     {
@@ -382,22 +293,16 @@ app.MapPost("/especialidades", (DTOs.Especialidad dto) =>
     }
 })
 .WithName("AddEspecialidad")
-.Produces<DTOs.Especialidad>(StatusCodes.Status201Created)
+.Produces<EspecialidadDTO>(StatusCodes.Status201Created)
 .Produces(StatusCodes.Status400BadRequest);
 
-
-app.MapPut("/especialidades", (DTOs.Especialidad dto) =>
+app.MapPut("/especialidades", (EspecialidadDTO dto) =>
 {
     try
     {
         var especialidadService = new EspecialidadService();
 
-        var especialidad = new Especialidad(
-             dto.Id_especialidad,
-            dto.Desc_esp
-        );
-
-        var found = especialidadService.Update(especialidad);
+        var found = especialidadService.Update(dto);
 
         if (!found)
             return Results.NotFound();
@@ -414,7 +319,6 @@ app.MapPut("/especialidades", (DTOs.Especialidad dto) =>
 .Produces(StatusCodes.Status404NotFound)
 .Produces(StatusCodes.Status400BadRequest);
 
-
 app.MapDelete("/especialidades/{id_especialidad}", (int id_especialidad) =>
 {
     var especialidadService = new EspecialidadService();
@@ -430,6 +334,23 @@ app.MapDelete("/especialidades/{id_especialidad}", (int id_especialidad) =>
 .Produces(StatusCodes.Status204NoContent)
 .Produces(StatusCodes.Status404NotFound);
 
+app.MapGet("/especialidades/criteria", (string texto) =>
+{
+    try
+    {
+        var especialidadService = new EspecialidadService();
+        var criteriaDTO = new EspecialidadCriteriaDTO { Texto = texto };
+        var especialidades = especialidadService.GetByCriteria(criteriaDTO);
 
+        return Results.Ok(especialidades);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("GetEspecialidadesByCriteria")
+.Produces<List<EspecialidadDTO>>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
 
 app.Run();

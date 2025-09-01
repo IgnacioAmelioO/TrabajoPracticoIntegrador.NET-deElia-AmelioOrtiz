@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsForms;
+using Api.Clients;
 
 namespace WindowsForms
 {
@@ -22,8 +23,8 @@ namespace WindowsForms
         {
             if (int.TryParse(inputIdEspecialidad.Text, out int idBuscado))
             {
-                Especialidad especialidad = await EspecialidadApiClient.GetAsync(idBuscado);
-                this.especialidadesGrid.DataSource = especialidad != null ? new List<Especialidad> { especialidad } : new List<Especialidad>();
+                EspecialidadDTO especialidad = await EspecialidadApiClient.GetAsync(idBuscado);
+                this.especialidadesGrid.DataSource = especialidad != null ? new List<EspecialidadDTO> { especialidad } : new List<EspecialidadDTO>();
             }
             else
             {
@@ -66,11 +67,11 @@ namespace WindowsForms
             this.GetAllAndLoad();
         }
 
-        private Especialidad SelectedItem()
+        private EspecialidadDTO SelectedItem()
         {
-            Especialidad especialidad;
+            EspecialidadDTO especialidad;
 
-            especialidad = (Especialidad)especialidadesGrid.SelectedRows[0].DataBoundItem;
+            especialidad = (EspecialidadDTO)especialidadesGrid.SelectedRows[0].DataBoundItem;
 
             return especialidad;
         }
@@ -82,7 +83,7 @@ namespace WindowsForms
                 int id = (int)especialidadesGrid.CurrentRow.Cells["Id_especialidad"].Value;
 
                 // Obtener la persona desde la API  
-                Especialidad especialidad = await EspecialidadApiClient.GetAsync(id);
+                EspecialidadDTO especialidad = await EspecialidadApiClient.GetAsync(id);
 
                 if (especialidad != null)
                 {
@@ -111,7 +112,7 @@ namespace WindowsForms
         {
             EspecialidadForm especialidadDetalle = new EspecialidadForm();
 
-            Especialidad especialidadNueva = new Especialidad();
+            EspecialidadDTO especialidadNueva = new EspecialidadDTO();
 
             especialidadDetalle.Especialidad = especialidadNueva;
 

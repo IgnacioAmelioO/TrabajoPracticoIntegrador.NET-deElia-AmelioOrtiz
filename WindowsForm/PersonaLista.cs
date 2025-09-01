@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsForms;
+using Api.Clients;
+
 namespace WindowsForm
 {
     public partial class PersonaLista : Form
@@ -22,8 +24,8 @@ namespace WindowsForm
 
             if (int.TryParse(inputIdAlumno.Text, out int idBuscado))
             {
-                Persona persona = await PersonaApiClient.GetAsync(idBuscado);
-                this.personasGrid.DataSource = persona != null ? new List<Persona> { persona } : new List<Persona>();
+                PersonaDTO persona = await PersonaApiClient.GetAsync(idBuscado);
+                this.personasGrid.DataSource = persona != null ? new List<PersonaDTO> { persona } : new List<PersonaDTO>();
 
             }
             else
@@ -67,11 +69,11 @@ namespace WindowsForm
             this.GetAllAndLoad();
         }
 
-        private Persona SelectedItem()
+        private PersonaDTO SelectedItem()
         {
-            Persona persona;
+            PersonaDTO persona;
 
-            persona = (Persona)personasGrid.SelectedRows[0].DataBoundItem;
+            persona = (PersonaDTO)personasGrid.SelectedRows[0].DataBoundItem;
 
             return persona;
         }
@@ -83,7 +85,7 @@ namespace WindowsForm
                 int id = (int)personasGrid.CurrentRow.Cells["Id_persona"].Value;
 
                 // Obtener la persona desde la API
-                Persona persona = await PersonaApiClient.GetAsync(id);
+                PersonaDTO persona = await PersonaApiClient.GetAsync(id);
 
                 if (persona != null)
                 {
@@ -116,7 +118,7 @@ namespace WindowsForm
         {
             PersonaForm personaDetalle = new PersonaForm();
 
-            Persona personaNueva = new Persona();
+            PersonaDTO personaNueva = new PersonaDTO();
 
             personaDetalle.Persona = personaNueva;
 

@@ -1,6 +1,6 @@
 ﻿namespace DTOs
 {
-    public class Persona
+    public class PersonaDTO
     {
         public int Id_persona { get; set; }
         public string Nombre { get; set; }

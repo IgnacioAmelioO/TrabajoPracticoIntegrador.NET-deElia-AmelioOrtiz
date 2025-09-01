@@ -1,76 +1,93 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Data;
 using Domain.Model;
-
+using DTOs;
 
 
 namespace Domain.Services
 {
     public class PlanService
     {
-        public void Add(Plan plan)
+        public PlanDTO Add(PlanDTO dto)
         {
-            plan.SetId_plan(GetNextId());
+            var planRepository = new PlanRepository();
 
-            PlanInMemory.Planes.Add(plan);
+            if (planRepository.DescriptionExists(dto.Desc_plan))
+            {
+                throw new ArgumentException("Ya existe un plan con esa descripción.", nameof(dto.Desc_plan));
+            }
+
+            Plan plan = new Plan(0, dto.Desc_plan, dto.Id_especialidad);
+
+            planRepository.Add(plan);
+
+            dto.Id_plan = plan.Id_plan; // Asignar el Id generado al DTO
+
+            return dto;
+
         }
 
         public bool Delete(int id)
         {
-            Plan? planToDelete = PlanInMemory.Planes.Find(x => x.Id_plan == id);
-
-            if (planToDelete != null)
-            {
-                PlanInMemory.Planes.Remove(planToDelete);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            var planRepository = new PlanRepository();
+            return planRepository.Delete(id);
         }
 
-        public Plan Get(int id)
+        public PlanDTO Get(int id)
         {
-            return PlanInMemory.Planes.Find(x => x.Id_plan == id);
+            var planRepository = new PlanRepository();
+            Plan? plan = planRepository.Get(id);
+            if (plan == null)
+                return null;
+
+            return new PlanDTO
+            {
+                Id_plan = plan.Id_plan,
+                Desc_plan = plan.Desc_plan,
+                Id_especialidad = plan.Id_especialidad
+            };
         }
 
-        public IEnumerable<Plan> GetAll()
+        public IEnumerable<PlanDTO> GetAll()
         {
-            return PlanInMemory.Planes.ToList();
+            var planRepository = new PlanRepository();
+            return planRepository.GetAll().Select(plan => new PlanDTO
+            {
+                Id_plan = plan.Id_plan,
+                Desc_plan = plan.Desc_plan,
+                Id_especialidad = plan.Id_especialidad
+            }).ToList();
         }
 
-        public bool Update(Plan plan)
+        public bool Update(PlanDTO dto)
         {
-            Plan? planToUpdate = PlanInMemory.Planes.Find(x => x.Id_plan == plan.Id_plan);
+            var planRepository = new PlanRepository();
 
-            if (planToUpdate != null)
+            if (planRepository.DescriptionExists(dto.Desc_plan))
             {
-                planToUpdate.SetDesc_plan(plan.Desc_plan);
-                planToUpdate.SetId_especialidad(plan.Id_especialidad);
-                return true;
+                throw new ArgumentException("Ya existe un plan con esa descripción.", nameof(dto.Desc_plan));
             }
-            else
-            {
-                return false;
-            }
+            Plan plan = new Plan(dto.Id_plan, dto.Desc_plan, dto.Id_especialidad);
+            return planRepository.Update(plan);
         }
-        private static int GetNextId()
+
+        public IEnumerable<PlanDTO> GetByCriteria(PlanCriteriaDTO criteriaDTO)
         {
-            int nextId;
+            var planRepository = new PlanRepository();
 
-            if (PlanInMemory.Planes.Count > 0)
-            {
-                nextId = PlanInMemory.Planes.Max(x => x.Id_plan) + 1;
-            }
-            else
-            {
-                nextId = 1;
-            }
+            var criteria = new PlanCriteria(criteriaDTO.Texto);
 
-            return nextId;
+            var planes = planRepository.GetByCriteria(criteria);
+
+            return planes.Select(plan => new PlanDTO
+            {
+                Id_plan = plan.Id_plan,
+                Desc_plan = plan.Desc_plan,
+                Id_especialidad = plan.Id_especialidad
+            }).ToList();
         }
+        
 
     }
 }

@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsForm;
+using Api.Clients;
 
 namespace WindowsForms
 {
@@ -20,8 +21,8 @@ namespace WindowsForms
         private readonly HttpClient httpClient = new HttpClient();
         public bool EditMode { get; set; } = false;
 
-        private Especialidad especialidad;
-        public Especialidad Especialidad
+        private EspecialidadDTO especialidad;
+        public EspecialidadDTO Especialidad
         {
             get => especialidad;
             set

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DTOs
 {
-    public class Plan
+    public class PlanDTO
     {
         public int Id_plan { get; set; }
         public string Desc_plan { get; set; }

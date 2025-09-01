@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace DTOs
 {
-    public class EspecialidadDTO
+    public class PlanCriteriaDTO
     {
-        public int Id_especialidad { get; set; }
-        public string Desc_esp { get; set; }
+        public string Texto { get; set; } = string.Empty;
     }
 }

@@ -1,103 +1,114 @@
-﻿using Domain.Model;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Data;
+using Domain.Model;
+using DTOs;
 
 namespace Domain.Services
 {
     public class PersonaService
     {
-        public void Add(Persona persona)
+        public PersonaDTO Add(PersonaDTO dto)
         {
-            persona.SetId(GetNextId());
-            persona.SetLegajo(GetNextLegajo());
+            var personaRepository = new PersonaRepository();
 
-            PersonaInMemory.Personas.Add(persona);
+            if (personaRepository.EmailExists(dto.Email))
+            {
+                throw new ArgumentException("Ya existe una persona con ese email.", nameof(dto.Email));
+            }
+
+            Persona persona = new Persona(0, dto.Nombre, dto.Apellido, dto.Direccion, dto.Email, 
+                dto.Telefono, dto.Fecha_nac, dto.Legajo, dto.Tipo_persona, dto.Id_plan);
+
+            personaRepository.Add(persona);
+
+            dto.Id_persona = persona.Id_persona; // Asignar el Id generado al DTO
+
+            return dto;
         }
 
         public bool Delete(int id)
         {
-            Persona? personaToDelete = PersonaInMemory.Personas.Find(x => x.Id_persona == id);
-
-            if (personaToDelete != null)
-            {
-                PersonaInMemory.Personas.Remove(personaToDelete);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            var personaRepository = new PersonaRepository();
+            return personaRepository.Delete(id);
         }
 
-        public Persona Get(int id)
+        public PersonaDTO Get(int id)
         {
-            //Deberia devolver un objeto cloneado 
-            return PersonaInMemory.Personas.Find(x => x.Id_persona == id);
+            var personaRepository = new PersonaRepository();
+            Persona? persona = personaRepository.Get(id);
+            if (persona == null)
+                return null;
+
+            return new PersonaDTO
+            {
+                Id_persona = persona.Id_persona,
+                Nombre = persona.Nombre,
+                Apellido = persona.Apellido,
+                Direccion = persona.Direccion,
+                Email = persona.Email,
+                Telefono = persona.Telefono,
+                Fecha_nac = persona.Fecha_nac,
+                Legajo = persona.Legajo,
+                Tipo_persona = persona.Tipo_persona,
+                Id_plan = persona.Id_plan
+            };
         }
 
-        public IEnumerable<Persona> GetAll()
+        public IEnumerable<PersonaDTO> GetAll()
         {
-            //Devuelvo una lista nueva cada vez que se llama a GetAll
-            //pero idealmente deberia implementar un Deep Clone
-            return PersonaInMemory.Personas.ToList();
+            var personaRepository = new PersonaRepository();
+            return personaRepository.GetAll().Select(persona => new PersonaDTO
+            {
+                Id_persona = persona.Id_persona,
+                Nombre = persona.Nombre,
+                Apellido = persona.Apellido,
+                Direccion = persona.Direccion,
+                Email = persona.Email,
+                Telefono = persona.Telefono,
+                Fecha_nac = persona.Fecha_nac,
+                Legajo = persona.Legajo,
+                Tipo_persona = persona.Tipo_persona,
+                Id_plan = persona.Id_plan
+            }).ToList();
         }
 
-        public bool Update(Persona persona)
+        public bool Update(PersonaDTO dto)
         {
-            Persona? personaToUpdate = PersonaInMemory.Personas.Find(x => x.Id_persona == persona.Id_persona);
+            var personaRepository = new PersonaRepository();
 
-            if (personaToUpdate != null)
+            if (personaRepository.EmailExists(dto.Email, dto.Id_persona))
             {
-
-                personaToUpdate.SetNombre(persona.Nombre);
-                personaToUpdate.SetApellido(persona.Apellido);
-                personaToUpdate.SetEmail(persona.Email);
-                personaToUpdate.SetDireccion(persona.Direccion);
-                personaToUpdate.SetTelefono(persona.Telefono);
-                personaToUpdate.SetTipo_persona(persona.Tipo_persona);
-                personaToUpdate.SetFecha_nac(persona.Fecha_nac);
-                personaToUpdate.SetId_plan(persona.Id_plan);
-
-
-                return true;
+                throw new ArgumentException("Ya existe una persona con ese email.", nameof(dto.Email));
             }
-            else
-            {
-                return false;
-            }
-        }
-        private static int GetNextId()
-        {
-            int nextId;
-
-            if (PersonaInMemory.Personas.Count > 0)
-            {
-                nextId = PersonaInMemory.Personas.Max(x => x.Id_persona) + 1;
-            }
-            else
-            {
-                nextId = 1;
-            }
-
-            return nextId;
+            
+            Persona persona = new Persona(dto.Id_persona, dto.Nombre, dto.Apellido, dto.Direccion, 
+                dto.Email, dto.Telefono, dto.Fecha_nac, dto.Legajo, dto.Tipo_persona, dto.Id_plan);
+            return personaRepository.Update(persona);
         }
 
-
-        //Adaptar en un futuro para los legajos de docentes y alumnos
-        private static string GetNextLegajo()
+        public IEnumerable<PersonaDTO> GetByCriteria(PersonaCriteriaDTO criteriaDTO)
         {
-            string nextLegajo;
+            var personaRepository = new PersonaRepository();
 
-            if (PersonaInMemory.Personas.Count > 0)
-            {
-                nextLegajo = "A" + (PersonaInMemory.Personas.Max(x => x.Id_persona) + 1);
-            }
-            else
-            {
-                nextLegajo = "A1";
-            }
+            var criteria = new PersonaCriteria(criteriaDTO.Texto);
 
-            return nextLegajo;
+            var personas = personaRepository.GetByCriteria(criteria);
+
+            return personas.Select(persona => new PersonaDTO
+            {
+                Id_persona = persona.Id_persona,
+                Nombre = persona.Nombre,
+                Apellido = persona.Apellido,
+                Direccion = persona.Direccion,
+                Email = persona.Email,
+                Telefono = persona.Telefono,
+                Fecha_nac = persona.Fecha_nac,
+                Legajo = persona.Legajo,
+                Tipo_persona = persona.Tipo_persona,
+                Id_plan = persona.Id_plan
+            }).ToList();
         }
     }
 }

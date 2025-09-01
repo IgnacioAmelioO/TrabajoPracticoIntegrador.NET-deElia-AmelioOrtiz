@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsForm;
+using Api.Clients;
 
 namespace WindowsForms
 {
@@ -20,8 +21,8 @@ namespace WindowsForms
         private readonly HttpClient httpClient = new HttpClient();
         public bool EditMode { get; set; } = false;
 
-        private Persona persona;
-        public Persona Persona
+        private PersonaDTO persona;
+        public PersonaDTO Persona
         {
             get => persona;
             set
@@ -59,7 +60,7 @@ namespace WindowsForms
 
             try
             {
-                var planes = await httpClient.GetFromJsonAsync<List<Plan>>("https://localhost:7003/planes");
+                var planes = await httpClient.GetFromJsonAsync<List<PlanDTO>>("https://localhost:7003/planes");
                 comboBoxId_plan.DataSource = planes;
                 comboBoxId_plan.DisplayMember = "Desc_plan";
                 comboBoxId_plan.ValueMember = "Id_plan";
