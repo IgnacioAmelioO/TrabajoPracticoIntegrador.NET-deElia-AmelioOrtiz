@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-
 
 namespace Domain.Model
 {
@@ -15,6 +12,8 @@ namespace Domain.Model
         public string Desc_plan { get; private set; }
         public int Id_especialidad { get; private set; }
 
+        // Constructor sin parámetros para Entity Framework
+        private Plan() { }
 
         public Plan(int id_plan, string descripcion, int id_esp)
         {
@@ -29,6 +28,7 @@ namespace Domain.Model
                 throw new ArgumentException("El Id debe ser mayor que 0.", nameof(id));
             Id_plan = id;
         }
+
         public void SetDesc_plan(string descripcion)
         {
             if (string.IsNullOrWhiteSpace(descripcion))
@@ -42,8 +42,5 @@ namespace Domain.Model
                 throw new ArgumentException("El Id debe ser mayor que 0.", nameof(id));
             Id_especialidad = id;
         }
-
-
-
     }
 }

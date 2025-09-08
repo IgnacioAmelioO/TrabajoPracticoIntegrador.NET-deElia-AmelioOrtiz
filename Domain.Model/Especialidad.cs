@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Domain.Model
 {
@@ -12,6 +11,8 @@ namespace Domain.Model
         public int Id_especialidad { get; private set; }
         public string Desc_esp { get; private set; }
 
+        // Constructor sin parámetros para Entity Framework
+        private Especialidad() { }
 
         public Especialidad(int id, string descripcion)
         {
@@ -32,8 +33,5 @@ namespace Domain.Model
                 throw new ArgumentException("El nombre no puede ser nulo o vacío.", nameof(descripcion));
             Desc_esp = descripcion;
         }
-
     }
 }
-
-

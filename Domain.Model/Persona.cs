@@ -7,19 +7,17 @@ namespace Domain.Model
         public int Id_persona { get; private set; }
         public string Nombre { get; private set; }
         public string Apellido { get; private set; }
-
         public string Direccion { get; private set; }
         public string Email { get; private set; }
-
         public string Telefono { get; private set; }
-
         public DateOnly Fecha_nac { get; private set; }
-
         public string Legajo { get; private set; }
-
         public string Tipo_persona { get; private set; }
-
         public int Id_plan { get; private set; }
+
+        // Constructor sin parámetros para Entity Framework
+        private Persona() { }
+
 
         public Persona(int id, string nombre, string apellido, string direccion, string email, string telefono, DateOnly fecha_nac, string legajo, string tipo_persona, int id_plan)
         {
@@ -33,9 +31,9 @@ namespace Domain.Model
             SetLegajo(legajo);
             SetTipo_persona(tipo_persona);
             SetId_plan(id_plan);
-
         }
 
+        // resto de métodos igual...
         public void SetId(int id)
         {
             if (id < 0)
@@ -45,7 +43,6 @@ namespace Domain.Model
 
         public void SetLegajo(string legajo)
         {
-
             Legajo = legajo;
         }
 
@@ -113,7 +110,5 @@ namespace Domain.Model
                 return false;
             return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         }
-
-
     }
 }
