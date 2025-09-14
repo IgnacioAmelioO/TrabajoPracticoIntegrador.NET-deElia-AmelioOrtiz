@@ -34,6 +34,9 @@ namespace Data
             }
         }
 
+
+        // Ver si tendriamos que agregar las relaciones entre las tablas con las claves foraneas
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
