@@ -15,6 +15,9 @@ namespace Data
         public DbSet<Especialidad> Especialidades { get; set; }
         public DbSet<Persona> Personas { get; set; }
 
+        public DbSet<Curso> Cursos { get; set; }
+        public DbSet<AlumnoInscripcion> AlumnosInscripciones { get; set; }
+        public DbSet<DocenteCurso> DocentesCursos { get; set; }
         internal TPIContext()
         {
             this.Database.EnsureCreated();
@@ -127,6 +130,74 @@ namespace Data
                     .HasForeignKey(p => p.Id_plan)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+
+            modelBuilder.Entity<AlumnoInscripcion>(entity =>
+            {
+                entity.HasKey(e => e.Id_inscripcion);
+                entity.Property(e => e.Id_inscripcion).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id_alumno).IsRequired();
+                entity.Property(e => e.Id_curso).IsRequired();
+                entity.Property(e => e.Condicion).HasMaxLength(50);
+                entity.Property(e => e.Nota);
+
+                // Clave foránea a Persona (alumno)
+                entity.HasOne<Persona>()
+                    .WithMany()
+                    .HasForeignKey(ai => ai.Id_alumno)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Clave foránea a Curso
+                entity.HasOne<Curso>()
+                    .WithMany()
+                    .HasForeignKey(ai => ai.Id_curso)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Curso>(entity =>
+            {
+                entity.HasKey(e => e.Id_curso);
+                entity.Property(e => e.Id_curso).ValueGeneratedOnAdd();
+                entity.Property(e => e.Anio_calendario).IsRequired();
+                entity.Property(e => e.Cupo).IsRequired();
+                entity.Property(e => e.Id_materia).IsRequired();
+                entity.Property(e => e.Id_comision).IsRequired();
+                
+                
+                /** Clave foránea a Materia
+                entity.HasOne<Materia>()
+                    .WithMany()
+                    .HasForeignKey(c => c.Id_materia)
+                    .OnDelete(DeleteBehavior.Restrict);
+                // Clave foránea a Comision
+                entity.HasOne<Comision>()
+                    .WithMany()
+                    .HasForeignKey(c => c.Id_comision)
+                    .OnDelete(DeleteBehavior.Restrict);
+                **/
+            });
+
+            modelBuilder.Entity<DocenteCurso>(entity =>
+            {
+                entity.HasKey(e => e.Id_dictado);
+                entity.Property(e => e.Id_dictado).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id_docente).IsRequired();
+                entity.Property(e => e.Id_curso).IsRequired();
+                entity.Property(e => e.Cargo).IsRequired();
+
+                // Clave foránea a Persona (docente)
+                entity.HasOne<Persona>()
+                    .WithMany()
+                    .HasForeignKey(dc => dc.Id_docente)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Clave foránea a Curso
+                entity.HasOne<Curso>()
+                    .WithMany()
+                    .HasForeignKey(dc => dc.Id_curso)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
         }
     }
 }
