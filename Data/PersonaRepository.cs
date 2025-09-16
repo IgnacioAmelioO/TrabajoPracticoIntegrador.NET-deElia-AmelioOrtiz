@@ -128,7 +128,7 @@ namespace Data
                     reader.GetInt32(9)     // Id_plan
                 );
 
-                personas.Add(persona);
+                personas.Add(persona); // habria que cerrar la conexion una vez que se termina de leer todo?
             }
 
             return personas;

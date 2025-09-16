@@ -35,7 +35,7 @@ namespace Data
         }
 
 
-        // Ver si tendriamos que agregar las relaciones entre las tablas con las claves foraneas
+        // DEFINIR PLANES DEFAULT
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,7 +54,15 @@ namespace Data
 
                 entity.Property(e => e.Id_especialidad)
                     .IsRequired();
+
+                // Clave foránea de Plan a Especialidad
+                entity.HasOne<Especialidad>()
+                    .WithMany()
+                    .HasForeignKey(p => p.Id_especialidad)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
+
+            // DEFINIR ESPECIALIDADES DEFAULT
 
             modelBuilder.Entity<Especialidad>(entity =>
             {
@@ -89,7 +97,11 @@ namespace Data
 
                 entity.Property(e => e.Email)
                     .IsRequired()
-                    .HasMaxLength(150);
+                    .HasMaxLength(255);
+
+                // Restricción única para Email
+                entity.HasIndex(e => e.Email)
+                    .IsUnique();
 
                 entity.Property(e => e.Telefono)
                     .IsRequired()
@@ -108,6 +120,12 @@ namespace Data
 
                 entity.Property(e => e.Fecha_nac)
                     .IsRequired();
+
+                // Clave foránea de Persona a Plan
+                entity.HasOne<Plan>()
+                    .WithMany()
+                    .HasForeignKey(p => p.Id_plan)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
