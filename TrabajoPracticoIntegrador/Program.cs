@@ -40,6 +40,7 @@ app.UseHttpsRedirection();
 app.UseCors("AllowBlazorWasm");
 
 // ================= PERSONAS CRUD =================
+
 app.MapPersonaEndpoints();
 
 // ================= PLANES CRUD =================
