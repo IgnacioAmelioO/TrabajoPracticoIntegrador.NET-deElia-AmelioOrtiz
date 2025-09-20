@@ -51,4 +51,8 @@ app.MapPlanEndpoints();
 
 app.MapEspecialidadEndpoints();
 
+// ================= CRUSOS CRUD =================
+
+app.MapCursoEndpoints();
+
 app.Run();
