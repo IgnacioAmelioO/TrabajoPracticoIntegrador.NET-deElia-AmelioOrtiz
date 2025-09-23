@@ -30,6 +30,8 @@
         {
             personasButton = new Button();
             especialidadesButton = new Button();
+            planesButton = new Button();
+            cursosButton = new Button();
             SuspendLayout();
             // 
             // personasButton
@@ -52,11 +54,33 @@
             especialidadesButton.UseVisualStyleBackColor = true;
             especialidadesButton.Click += especialidadButton_Click;
             // 
+            // planesButton
+            // 
+            planesButton.Location = new Point(273, 300);
+            planesButton.Name = "planesButton";
+            planesButton.Size = new Size(224, 72);
+            planesButton.TabIndex = 2;
+            planesButton.Text = "Planes";
+            planesButton.UseVisualStyleBackColor = true;
+            planesButton.Click += planesButton_Click;
+            // 
+            // CursosButton
+            // 
+            cursosButton.Location = new Point(284, 58);
+            cursosButton.Name = "CursosButton";
+            cursosButton.Size = new Size(201, 66);
+            cursosButton.TabIndex = 3;
+            cursosButton.Text = "Cursos";
+            cursosButton.UseVisualStyleBackColor = true;
+            cursosButton.Click += cursosButton_Click;
+            // 
             // Inicio
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(cursosButton);
+            Controls.Add(planesButton);
             Controls.Add(especialidadesButton);
             Controls.Add(personasButton);
             Name = "Inicio";
@@ -68,5 +92,7 @@
 
         private Button personasButton;
         private Button especialidadesButton;
+        private Button planesButton;
+        private Button cursosButton;
     }
 }

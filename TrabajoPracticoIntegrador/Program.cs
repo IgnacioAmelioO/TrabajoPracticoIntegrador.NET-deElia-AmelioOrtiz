@@ -55,4 +55,8 @@ app.MapEspecialidadEndpoints();
 
 app.MapCursoEndpoints();
 
+app.MapComisionEndpoints();
+
+app.MapMateriaEndpoints();
+
 app.Run();

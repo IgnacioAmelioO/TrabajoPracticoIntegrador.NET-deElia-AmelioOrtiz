@@ -17,6 +17,8 @@ namespace Data
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<AlumnoInscripcion> AlumnosInscripciones { get; set; }
         public DbSet<DocenteCurso> DocentesCursos { get; set; }
+        public DbSet<Materia> Materias { get; set; }
+        public DbSet<Comision> Comisiones { get; set; }
 
         public TPIContext() { }
 
@@ -40,7 +42,7 @@ namespace Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuración de Especialidad
+           
             modelBuilder.Entity<Especialidad>(entity =>
             {
                 entity.HasKey(e => e.Id_especialidad);
@@ -48,7 +50,7 @@ namespace Data
                 entity.Property(e => e.Desc_esp).IsRequired().HasMaxLength(100);
             });
 
-            // Configuración de Plan
+            
             modelBuilder.Entity<Plan>(entity =>
             {
                 entity.HasKey(e => e.Id_plan);
@@ -62,7 +64,7 @@ namespace Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Configuración de Persona
+           
             modelBuilder.Entity<Persona>(entity =>
             {
                 entity.HasKey(e => e.Id_persona);
@@ -85,7 +87,7 @@ namespace Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Configuración de Curso
+            
             modelBuilder.Entity<Curso>(entity =>
             {
                 entity.HasKey(e => e.Id_curso);
@@ -96,7 +98,7 @@ namespace Data
                 entity.Property(e => e.Id_comision).IsRequired();
             });
 
-            // Configuración de AlumnoInscripcion
+           
             modelBuilder.Entity<AlumnoInscripcion>(entity =>
             {
                 entity.HasKey(e => e.Id_inscripcion);
@@ -117,7 +119,7 @@ namespace Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Configuración de DocenteCurso
+            
             modelBuilder.Entity<DocenteCurso>(entity =>
             {
                 entity.HasKey(e => e.Id_dictado);
@@ -134,6 +136,37 @@ namespace Data
                 entity.HasOne<Curso>()
                     .WithMany()
                     .HasForeignKey(dc => dc.Id_curso)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+           
+            modelBuilder.Entity<Materia>(entity =>
+            {
+                entity.HasKey(m => m.Id_materia);
+                entity.Property(m => m.Id_materia).ValueGeneratedOnAdd();
+                entity.Property(m => m.Desc_materia).IsRequired().HasMaxLength(100);
+                entity.Property(m => m.Hs_semanales).IsRequired();
+                entity.Property(m => m.Hs_totales).IsRequired();
+                entity.Property(m => m.Id_plan).IsRequired();
+
+                entity.HasOne<Plan>()
+                    .WithMany()
+                    .HasForeignKey(m => m.Id_plan)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            
+            modelBuilder.Entity<Comision>(entity =>
+            {
+                entity.HasKey(c => c.Id_comision);
+                entity.Property(c => c.Id_comision).ValueGeneratedOnAdd();
+                entity.Property(c => c.Desc_comision).IsRequired().HasMaxLength(100);
+                entity.Property(c => c.Anio_especialidad).IsRequired();
+                entity.Property(c => c.Id_plan).IsRequired();
+
+                entity.HasOne<Plan>()
+                    .WithMany()
+                    .HasForeignKey(c => c.Id_plan)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }
