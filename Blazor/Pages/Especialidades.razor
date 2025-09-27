@@ -1,8 +1,11 @@
-﻿@page "/Especialidades"
+﻿@page "/especialidades"
 @using DTOs
 @using Api.Clients
-@using BlazorApp.Components
-@inject IJSRuntime JSRuntime
+@using Blazor.Components
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+
 
 <PageTitle>Especialidades</PageTitle>
 
@@ -63,7 +66,7 @@
                                             <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => OpenEditModal(especialidad)">
                                                 <i class="fas fa-edit"></i> Editar
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDelete(especialidad)">
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteEspecialidad(especialidad.Id_especialidad)">
                                                 <i class="fas fa-trash"></i> Eliminar
                                             </button>
                                         </td>
@@ -120,16 +123,6 @@
         await especialidadModal.ShowEditModal(especialidad);
     }
 
-    private async Task ConfirmDelete(EspecialidadDTO especialidad)
-    {
-        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", 
-            $"¿Está seguro que desea eliminar la especialidad {especialidad.Id_especialidad} {especialidad.Desc_esp}?");
-        
-        if (confirm)
-        {
-            await DeleteEspecialidad(especialidad.Id_especialidad);
-        }
-    }
 
     private async Task DeleteEspecialidad(int id)
     {
