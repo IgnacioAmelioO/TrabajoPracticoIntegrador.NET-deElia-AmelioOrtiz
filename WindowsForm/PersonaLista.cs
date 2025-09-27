@@ -84,16 +84,16 @@ namespace WindowsForm
             {
                 int id = (int)personasGrid.CurrentRow.Cells["Id_persona"].Value;
 
-                // Obtener la persona desde la API
+                
                 PersonaDTO persona = await PersonaApiClient.GetAsync(id);
 
                 if (persona != null)
                 {
-                    // Abrir el formulario en modo edición
+                   
                     var form = new PersonaForm
                     {
                         Persona = persona,
-                        EditMode = true // muy importante para que el botón diga "Guardar cambios"
+                        EditMode = true 
                     };
 
                     var result = form.ShowDialog();

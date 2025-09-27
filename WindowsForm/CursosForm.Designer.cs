@@ -40,9 +40,7 @@
             this.buttonCrear = new System.Windows.Forms.Button();
             this.buttonCancelar = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            // 
-            // labelIdCurso
-            // 
+           
             this.labelIdCurso.AutoSize = true;
             this.labelIdCurso.Location = new System.Drawing.Point(30, 25);
             this.labelIdCurso.Name = "labelIdCurso";

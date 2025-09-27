@@ -1,0 +1,42 @@
+﻿@page "/especialidades"
+@using DTOs
+@using Api.Clients
+
+<h3>Especialidades</h3>
+
+@if (especialidades == null || !especialidades.Any())
+{
+    <p>No hay especialidades registradas.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var esp in especialidades)
+            {
+                <tr>
+                    <td>@esp.Id_especialidad</td>
+                    <td>@esp.Desc_esp</td>
+                    <td>
+                        <NavLink href="@($"/especialidades/editar/{esp.Id_especialidad}")">Ver detalle</NavLink>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<EspecialidadDTO>? especialidades;
+
+    protected override async Task OnInitializedAsync()
+    {
+        especialidades = (await EspecialidadApiClient.GetAllAsync())?.ToList();
+    }
+}

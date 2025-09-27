@@ -35,7 +35,7 @@ namespace WindowsForm
 
         private async void CursosForm_Load(object sender, EventArgs e)
         {
-            // Cargar materias y comisiones
+            
             comboBoxMateria.DataSource = await MateriaApiClient.GetAllAsync();
             comboBoxMateria.DisplayMember = "Desc_materia";
             comboBoxMateria.ValueMember = "Id_materia";

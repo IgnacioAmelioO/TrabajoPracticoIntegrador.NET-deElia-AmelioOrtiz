@@ -9,7 +9,7 @@ namespace Domain.Model
         public int Anio_especialidad { get; private set; }
         public int Id_plan { get; private set; }
 
-        // Constructor sin parámetros para Entity Framework
+        
         private Comision() { }
 
         public Comision(int id, string descripcion, int anioEspecialidad, int idPlan)

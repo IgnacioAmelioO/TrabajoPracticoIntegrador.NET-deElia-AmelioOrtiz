@@ -13,7 +13,7 @@ namespace Domain.Services
         {
             var materiaRepository = new MateriaRepository();
 
-            // Validación para evitar materias duplicadas (por nombre y plan)
+            
             if (materiaRepository.MateriaExists(dto.Desc_materia, dto.Id_plan))
             {
                 throw new ArgumentException("Ya existe una materia con ese nombre en el plan especificado.", nameof(dto));
@@ -21,7 +21,7 @@ namespace Domain.Services
 
             Materia materia = new Materia(0, dto.Desc_materia, dto.Hs_semanales, dto.Hs_totales, dto.Id_plan);
             materiaRepository.Add(materia);
-            dto.Id_materia = materia.Id_materia; // Asignar el Id generado al DTO
+            dto.Id_materia = materia.Id_materia; 
 
             return dto;
         }
@@ -66,7 +66,7 @@ namespace Domain.Services
         {
             var materiaRepository = new MateriaRepository();
 
-            // Validación para evitar materias duplicadas en la actualización
+            
             if (materiaRepository.MateriaExists(dto.Desc_materia, dto.Id_plan, dto.Id_materia))
             {
                 throw new ArgumentException("Ya existe una materia con ese nombre en el plan especificado.", nameof(dto));

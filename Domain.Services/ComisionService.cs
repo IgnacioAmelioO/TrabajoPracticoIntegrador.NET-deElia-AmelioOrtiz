@@ -13,7 +13,7 @@ namespace Domain.Services
         {
             var comisionRepository = new ComisionRepository();
 
-            // Validación para evitar comisiones duplicadas (por nombre, año y plan)
+           
             if (comisionRepository.ComisionExists(dto.Desc_comision, dto.Anio_especialidad, dto.Id_plan))
             {
                 throw new ArgumentException("Ya existe una comisión con ese nombre, año y plan.", nameof(dto));
@@ -21,7 +21,7 @@ namespace Domain.Services
 
             Comision comision = new Comision(0, dto.Desc_comision, dto.Anio_especialidad, dto.Id_plan);
             comisionRepository.Add(comision);
-            dto.Id_comision = comision.Id_comision; // Asignar el Id generado al DTO
+            dto.Id_comision = comision.Id_comision; 
 
             return dto;
         }
@@ -64,7 +64,7 @@ namespace Domain.Services
         {
             var comisionRepository = new ComisionRepository();
 
-            // Validación para evitar comisiones duplicadas en la actualización
+           
             if (comisionRepository.ComisionExists(dto.Desc_comision, dto.Anio_especialidad, dto.Id_plan, dto.Id_comision))
             {
                 throw new ArgumentException("Ya existe una comisión con ese nombre, año y plan.", nameof(dto));

@@ -10,7 +10,7 @@ namespace Domain.Model
         public int Hs_totales { get; private set; }
         public int Id_plan { get; private set; }
 
-        // Constructor sin parámetros para Entity Framework
+       
         private Materia() { }
 
         public Materia(int id, string descripcion, int hsSem, int hsTot, int idPlan)
