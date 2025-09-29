@@ -42,14 +42,6 @@
                             }
                         </div>                                                    
 
-                        @if (mode == FormMode.Update)
-                        {
-                            <div class="mb-3">
-                                <label class="form-label">ID</label>
-                                <input type="text" class="form-control" value="@currentEspecialidad.Id_especialidad" readonly />
-                            </div>
-                        }
-
                         @if (!string.IsNullOrEmpty(errorMessage))
                         {
                             <div class="alert alert-danger">

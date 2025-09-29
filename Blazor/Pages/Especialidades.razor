@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
 
 
 <PageTitle>Especialidades</PageTitle>
@@ -129,12 +130,23 @@
         try
         {
             await EspecialidadApiClient.DeleteAsync(id);
-            successMessage = "Especialidad eliminado exitosamente.";
             await LoadEspecialidades();
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error al eliminar la especialidad: {ex.Message}";
+            // Verificar si el error es de dependencia
+            if (ex.Message.Contains("REFERENCE constraint") || 
+                ex.Message.Contains("clave foránea") || 
+                ex.Message.Contains("dependencies"))
+            {
+                await JSRuntime.InvokeVoidAsync("alert", 
+                    "No se puede eliminar esta especialidad porque está siendo utilizada por uno o más planes.");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", 
+                    "Error al eliminar: " + ex.Message);
+            }
         }
     }
 }

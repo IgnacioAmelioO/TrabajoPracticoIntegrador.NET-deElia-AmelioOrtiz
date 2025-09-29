@@ -61,7 +61,7 @@ namespace Data
                 entity.HasOne<Especialidad>()
                     .WithMany()
                     .HasForeignKey(p => p.Id_especialidad)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    ;
             });
 
            

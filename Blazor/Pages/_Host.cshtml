@@ -1,6 +1,6 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Web
-@namespace Blazor.Server.Pages
+@namespace Blazor.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <!DOCTYPE html>
@@ -9,9 +9,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+
     <link href="css/site.css" rel="stylesheet" />
-    <link href="Blazor.Server.styles.css" rel="stylesheet" />
+    <link href="Blazor.styles.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
@@ -30,5 +31,6 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
