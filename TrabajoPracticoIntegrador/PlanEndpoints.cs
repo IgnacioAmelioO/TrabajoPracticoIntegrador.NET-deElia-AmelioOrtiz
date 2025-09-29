@@ -1,5 +1,6 @@
 ﻿using Domain.Services;
 using DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace TrabajoPracticoIntegrador
 {
@@ -78,18 +79,28 @@ namespace TrabajoPracticoIntegrador
 
             app.MapDelete("/planes/{id_plan}", (int id_plan) =>
             {
-                var planService = new PlanService();
+                try
+                {
+                    var planService = new PlanService();
+                    var deleted = planService.Delete(id_plan);
 
-                var deleted = planService.Delete(id_plan);
+                    if (!deleted)
+                        return Results.NotFound();
 
-                if (!deleted)
-                    return Results.NotFound();
-
-                return Results.NoContent();
+                    return Results.NoContent();
+                }
+                catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("REFERENCE constraint") ?? false)
+                {
+                    return Results.BadRequest(new
+                    {
+                        error = "No se puede eliminar este plan porque está siendo utilizado por otros registros."
+                    });
+                }
             })
             .WithName("DeletePlan")
             .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status400BadRequest);
 
             app.MapGet("/planes/criteria", (string texto) =>
             {

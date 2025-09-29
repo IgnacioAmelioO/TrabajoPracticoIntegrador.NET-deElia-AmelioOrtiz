@@ -30,5 +30,17 @@ namespace WindowsForm
             EspecialidadesLista especialidadLista = new EspecialidadesLista();
             especialidadLista.ShowDialog();
         }
+
+        private void planesButton_Click(object sender, EventArgs e)
+        {
+            PlanesLista planesLista = new PlanesLista();
+            planesLista.ShowDialog();
+        }
+
+        private void cursosButton_Click(object sender, EventArgs e)
+        {CursosLista cursosLista = new CursosLista();
+            cursosLista.ShowDialog();
+
+        }
     }
 }

@@ -40,6 +40,7 @@ app.UseHttpsRedirection();
 app.UseCors("AllowBlazorWasm");
 
 // ================= PERSONAS CRUD =================
+
 app.MapPersonaEndpoints();
 
 // ================= PLANES CRUD =================
@@ -49,5 +50,13 @@ app.MapPlanEndpoints();
 // ================= ESPECIALIDADES CRUD =================
 
 app.MapEspecialidadEndpoints();
+
+// ================= CRUSOS CRUD =================
+
+app.MapCursoEndpoints();
+
+app.MapComisionEndpoints();
+
+app.MapMateriaEndpoints();
 
 app.Run();
