@@ -23,6 +23,7 @@ DROP TABLE IF EXISTS AlumnosInscripciones;
 DROP TABLE IF EXISTS Cursos;
 DROP TABLE IF EXISTS Materias;
 DROP TABLE IF EXISTS Comisiones;
+DROP TABLE IF EXISTS Usuarios;
 DROP TABLE IF EXISTS Personas;
 DROP TABLE IF EXISTS Planes;
 DROP TABLE IF EXISTS Especialidades;
@@ -57,6 +58,25 @@ CREATE TABLE Personas (
     Fecha_nac DATE NOT NULL,
     CONSTRAINT FK_Personas_Planes FOREIGN KEY (Id_plan) 
         REFERENCES Planes(Id_plan)
+);
+
+-- Crear tabla Usuarios
+CREATE TABLE Usuarios (
+    Id INT IDENTITY(1,1) NOT NULL,
+    Username NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) NOT NULL,
+    PasswordHash NVARCHAR(255) NOT NULL,
+    Salt NVARCHAR(255) NOT NULL,
+    FechaCreacion DATETIME NOT NULL,
+    Activo BIT NOT NULL,
+    /* Id_persona INT NULL,
+    Cambia_clave BIT NOT NULL DEFAULT(0),
+    */
+    CONSTRAINT PK_Usuarios PRIMARY KEY CLUSTERED (Id ASC),
+    CONSTRAINT UK_Usuarios_Username UNIQUE NONCLUSTERED (Username ASC),
+    CONSTRAINT UK_Usuarios_Email UNIQUE NONCLUSTERED (Email ASC),
+    /*CONSTRAINT FK_Usuarios_Personas FOREIGN KEY (Id_persona)
+        REFERENCES Personas(Id_persona)*/
 );
 
 -- Crear tabla Cursos
@@ -138,11 +158,19 @@ INSERT INTO Comisiones (Desc_comision, Anio_especialidad, Id_plan) VALUES
 ('B', 1, 1),
 ('C', 2, 2);
 
+-- Insertar datos de ejemplo en Cursos
 INSERT INTO Cursos (Anio_calendario, Cupo, Id_materia, Id_comision) VALUES
 (2025, 30, 1, 1),  -- Programación I - Comision A
 (2025, 25, 2, 2),  -- Matemática II - Comision B
 (2025, 20, 3, 3);  -- Física I - Comision C
 
+-- Insertar usuarios de ejemplo
+INSERT INTO Usuarios (Username, Email, PasswordHash, Salt, FechaCreacion, Activo)
+VALUES 
+('admin', 'admin@sistema.com', '5f4dcc3b5aa765d61d8327deb882cf99', 'abc123', GETDATE(), 1),
+('usuario1', 'usuario1@sistema.com', '202cb962ac59075b964b07152d234b70', 'xyz789', GETDATE(), 1);
+
 GO
 
 PRINT 'Base de datos y todas las tablas creadas con datos de ejemplo correctamente';
+

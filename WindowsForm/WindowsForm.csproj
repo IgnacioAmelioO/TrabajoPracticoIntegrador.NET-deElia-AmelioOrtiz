@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Api.Clients\Api.Clients.csproj" />
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
+    <ProjectReference Include="..\WindowsFormsAuthService\Api.Auth.Windows.Forms.csproj" />
   </ItemGroup>
 
 </Project>

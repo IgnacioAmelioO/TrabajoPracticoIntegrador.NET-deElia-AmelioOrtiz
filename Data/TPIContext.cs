@@ -19,6 +19,7 @@ namespace Data
         public DbSet<DocenteCurso> DocentesCursos { get; set; }
         public DbSet<Materia> Materias { get; set; }
         public DbSet<Comision> Comisiones { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         public TPIContext() { }
 
@@ -168,6 +169,67 @@ namespace Data
                     .WithMany()
                     .HasForeignKey(c => c.Id_plan)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Username)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Email)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.PasswordHash)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Salt)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.FechaCreacion)
+                    .IsRequired();
+
+                entity.Property(e => e.Activo)
+                    .IsRequired();
+
+                // Restricciones únicas
+                entity.HasIndex(e => e.Username)
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Email)
+                    .IsUnique();
+
+                //entity.HasIndex(e => e.Id_persona)
+                  //  .IsUnique();
+
+                //entity.HasIndex(e => e.Cambia_clave)
+                  //  .IsUnique();
+
+                //entity.HasOne<Persona>()
+                  //  .WithMany()
+                    //.HasForeignKey(ai => ai.Id_persona)
+                    //.OnDelete(DeleteBehavior.Restrict);
+
+                // Usuario administrador inicial
+                var adminUser = new Domain.Model.Usuario(1, "admin", "admin@tpi.com", "admin123", DateTime.Now);
+                entity.HasData(new
+                {
+                    Id = adminUser.Id,
+                    Username = adminUser.Username,
+                    Email = adminUser.Email,
+                    PasswordHash = adminUser.PasswordHash,
+                    Salt = adminUser.Salt,
+                    FechaCreacion = adminUser.FechaCreacion,
+                    Activo = adminUser.Activo
+                });
             });
         }
     }

@@ -1,6 +1,9 @@
 using Domain.Model;
 using Domain.Services;
 using DTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TrabajoPracticoIntegrador;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,28 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpLogging(o => { });
+
+
+// Configuración de JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ??
+                     builder.Configuration["Jwt:Key"] ??
+                     throw new InvalidOperationException("JWT Key no configurada");
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 // Add CORS for Blazor WebAssembly
 builder.Services.AddCors(options =>
