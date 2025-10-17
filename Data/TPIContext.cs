@@ -49,6 +49,13 @@ namespace Data
                 entity.HasKey(e => e.Id_especialidad);
                 entity.Property(e => e.Id_especialidad).ValueGeneratedOnAdd();
                 entity.Property(e => e.Desc_esp).IsRequired().HasMaxLength(100);
+                
+                // Seed data for Especialidad
+                entity.HasData(new
+                {
+                    Id_especialidad = 1,
+                    Desc_esp = "Sistemas"
+                });
             });
 
             
@@ -63,6 +70,14 @@ namespace Data
                     .WithMany()
                     .HasForeignKey(p => p.Id_especialidad)
                     ;
+                    
+                // Seed data for Plan
+                entity.HasData(new
+                {
+                    Id_plan = 1,
+                    Desc_plan = "Plan 2008",
+                    Id_especialidad = 1
+                });
             });
 
            
@@ -86,6 +101,21 @@ namespace Data
                     .WithMany()
                     .HasForeignKey(p => p.Id_plan)
                     .OnDelete(DeleteBehavior.Restrict);
+                    
+                // Seed data for Persona
+                entity.HasData(new
+                {
+                    Id_persona = 1,
+                    Nombre = "Admin",
+                    Apellido = "Sistema",
+                    Direccion = "Universidad Tecnológica Nacional",
+                    Email = "admin@utn.edu.ar",
+                    Telefono = "12345678",
+                    Fecha_nac = DateOnly.FromDateTime(DateTime.Now),
+                    Legajo = "ADMIN001",
+                    Tipo_persona = "Administrador",
+                    Id_plan = 1
+                });
             });
 
             
@@ -200,6 +230,9 @@ namespace Data
                 entity.Property(e => e.Activo)
                     .IsRequired();
 
+                entity.Property(e => e.Id_persona)
+                    .IsRequired();
+
                 // Restricciones únicas
                 entity.HasIndex(e => e.Username)
                     .IsUnique();
@@ -207,29 +240,31 @@ namespace Data
                 entity.HasIndex(e => e.Email)
                     .IsUnique();
 
-                //entity.HasIndex(e => e.Id_persona)
-                  //  .IsUnique();
+                entity.HasIndex(e => e.Id_persona)
+                    .IsUnique();
 
                 //entity.HasIndex(e => e.Cambia_clave)
                   //  .IsUnique();
 
-                //entity.HasOne<Persona>()
-                  //  .WithMany()
-                    //.HasForeignKey(ai => ai.Id_persona)
-                    //.OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne<Persona>()
+                    .WithMany()
+                    .HasForeignKey(ai => ai.Id_persona)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                // Usuario administrador inicial
-                var adminUser = new Domain.Model.Usuario(1, "admin", "admin@tpi.com", "admin123", DateTime.Now);
-                entity.HasData(new
-                {
-                    Id = adminUser.Id,
-                    Username = adminUser.Username,
-                    Email = adminUser.Email,
-                    PasswordHash = adminUser.PasswordHash,
-                    Salt = adminUser.Salt,
-                    FechaCreacion = adminUser.FechaCreacion,
-                    Activo = adminUser.Activo
-                });
+                // Usuario administrador inicial con Id_persona=1
+                //var adminUser = new Domain.Model.Usuario(1, "admin", "admin@tpi.com", "admin123", DateTime.Now, true, 1);
+               
+                //entity.HasData(new
+                //{
+                //Id = adminUser.Id,
+                //Username = adminUser.Username,
+                //Email = adminUser.Email,
+                //PasswordHash = adminUser.PasswordHash,
+                //    Salt = adminUser.Salt,
+                //FechaCreacion = adminUser.FechaCreacion,
+                //Activo = adminUser.Activo,
+                //    Id_persona = adminUser.Id_persona
+                //}); 
             });
         }
     }

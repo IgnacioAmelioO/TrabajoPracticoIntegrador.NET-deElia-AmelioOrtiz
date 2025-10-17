@@ -44,6 +44,8 @@ namespace Api.Clients
                     return envUrl;
                 }
 
+
+                // Esto aca no iria ???????
                 // 2. Detectar si estamos en Android por el runtime
                 string runtimeInfo = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Runtime: {runtimeInfo}");

@@ -46,6 +46,12 @@ namespace Data
             return context.Usuarios.FirstOrDefault(u => u.Username == username && u.Activo);
         }
 
+        public Usuario? GetByPersonaId(int idPersona)
+        {
+            using var context = CreateContext();
+            return context.Usuarios.FirstOrDefault(u => u.Id_persona == idPersona);
+        }
+
         public IEnumerable<Usuario> GetAll()
         {
             using var context = CreateContext();

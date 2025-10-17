@@ -17,10 +17,10 @@ namespace Domain.Model
         public string Salt { get; private set; }
         public DateTime FechaCreacion { get; private set; }
         public bool Activo { get; private set; }
-        // public int Id_persona { get; private set; } // Foreign key to Persona (Alumno)
-        // public bool Cambia_clave { get; private set; } // Indicates if the user must change password on next login
+        public int Id_persona { get; private set; } // Foreign key to Persona (Alumno)
+        //public bool Cambia_clave { get; private set; } // Indicates if the user must change password on next login
 
-        public Usuario(int id, string username, string email, string password, DateTime fechaCreacion, bool activo = true)
+        public Usuario(int id, string username, string email, string password, DateTime fechaCreacion, bool activo = true, int idPersona = 0)
         {
             SetId(id);
             SetUsername(username);
@@ -28,7 +28,7 @@ namespace Domain.Model
             SetPassword(password);
             SetFechaCreacion(fechaCreacion);
             SetActivo(activo);
-            // SetIdPersona(Id_persona); // Inicializa con 0, debe ser seteado luego
+            SetIdPersona(idPersona); // Initialize with provided idPersona
         }
 
         // Constructor privado sin parámetros requerido por Entity Framework
@@ -108,12 +108,12 @@ namespace Domain.Model
             return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         }
 
-       // public void SetIdPersona(int id_persona)
-        //{
-          //  if (id_persona <= 0)
-            //    throw new ArgumentException("El Id de persona debe ser mayor que 0.", nameof(id_persona));
-            //Id_persona = id_persona;
-        //}
+       public void SetIdPersona(int id_persona)
+        {
+            // if (id_persona <= 0)
+                //throw new ArgumentException("El Id de persona debe ser mayor que 0.", nameof(id_persona));
+            Id_persona = id_persona;
+        }
 
         private static string GenerateSalt()
         {

@@ -14,8 +14,8 @@ namespace DTOs
         public DateTime FechaCreacion { get; set; }
         public bool Activo { get; set; }
         public int Id_persona { get; set; } // Agregado Id_persona
-        public bool Cambia_clave { get; set; } // Agregado Cambia_clave
-
+        //public bool Cambia_clave { get; set; } // Agregado Cambia_clave
+        public string? Password { get; set; } // Para pasar la contraseña durante la creación (no se almacena en BD)
     }
 
     public class UsuarioCreateDTO

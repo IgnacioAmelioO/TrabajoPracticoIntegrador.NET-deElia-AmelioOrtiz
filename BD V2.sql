@@ -69,9 +69,9 @@ CREATE TABLE Usuarios (
     Salt NVARCHAR(255) NOT NULL,
     FechaCreacion DATETIME NOT NULL,
     Activo BIT NOT NULL,
-    /* Id_persona INT NULL,
+    Id_persona INT NULL,
     Cambia_clave BIT NOT NULL DEFAULT(0),
-    */
+    
     CONSTRAINT PK_Usuarios PRIMARY KEY CLUSTERED (Id ASC),
     CONSTRAINT UK_Usuarios_Username UNIQUE NONCLUSTERED (Username ASC),
     CONSTRAINT UK_Usuarios_Email UNIQUE NONCLUSTERED (Email ASC),

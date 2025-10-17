@@ -24,6 +24,22 @@ namespace TrabajoPracticoIntegrador
             .Produces<UsuarioDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
             
+            app.MapGet("/usuarios/persona/{idPersona}", (int idPersona) =>
+            {
+                UsuarioService usuarioService = new UsuarioService();
+
+                UsuarioDTO dto = usuarioService.GetByPersonaId(idPersona);
+
+                if (dto == null)
+                {
+                    return Results.NotFound();
+                }
+
+                return Results.Ok(dto);
+            })
+            .WithName("GetUsuarioByPersonaId")
+            .Produces<UsuarioDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
 
             app.MapGet("/usuarios", () =>
             {

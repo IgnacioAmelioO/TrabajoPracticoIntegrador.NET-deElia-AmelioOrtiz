@@ -21,7 +21,8 @@ namespace Domain.Services
                 Username = usuario.Username,
                 Email = usuario.Email,
                 FechaCreacion = usuario.FechaCreacion,
-                Activo = usuario.Activo
+                Activo = usuario.Activo,
+                Id_persona = usuario.Id_persona
             });
         }
 
@@ -39,7 +40,27 @@ namespace Domain.Services
                 Username = usuario.Username,
                 Email = usuario.Email,
                 FechaCreacion = usuario.FechaCreacion,
-                Activo = usuario.Activo
+                Activo = usuario.Activo,
+                Id_persona = usuario.Id_persona
+            };
+        }
+
+        public UsuarioDTO? GetByPersonaId(int idPersona)
+        {
+            var usuarioRepository = new UsuarioRepository();
+            Usuario? usuario = usuarioRepository.GetByPersonaId(idPersona);
+
+            if (usuario == null)
+                return null;
+
+            return new UsuarioDTO
+            {
+                Id = usuario.Id,
+                Username = usuario.Username,
+                Email = usuario.Email,
+                FechaCreacion = usuario.FechaCreacion,
+                Activo = usuario.Activo,
+                Id_persona = usuario.Id_persona
             };
         }
 
@@ -48,7 +69,7 @@ namespace Domain.Services
             var usuarioRepository = new UsuarioRepository();
 
             var fechaCreacion = DateTime.Now;
-            Usuario usuario = new Usuario(0, createDto.Username, createDto.Email, createDto.Password, fechaCreacion, true);
+            Usuario usuario = new Usuario(0, createDto.Username, createDto.Email, createDto.Password, fechaCreacion, true, createDto.Id_persona);
 
             usuarioRepository.Add(usuario);
 
@@ -58,7 +79,8 @@ namespace Domain.Services
                 Username = usuario.Username,
                 Email = usuario.Email,
                 FechaCreacion = usuario.FechaCreacion,
-                Activo = usuario.Activo
+                Activo = usuario.Activo,
+                Id_persona = usuario.Id_persona
             };
         }
 

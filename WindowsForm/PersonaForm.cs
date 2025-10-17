@@ -20,6 +20,9 @@ namespace WindowsForms
     {
         private readonly HttpClient httpClient = new HttpClient();
         public bool EditMode { get; set; } = false;
+        private class TipoPersona{
+            public string Descripcion { get; set; }
+        }
 
         private PersonaDTO persona;
         public PersonaDTO Persona
@@ -152,6 +155,11 @@ namespace WindowsForms
 
             var fechaDateOnly = DateOnly.FromDateTime(dateTimePickerFecha_nacimiento.Value);
 
+            if (this.Persona == null)
+            {
+                this.Persona = new PersonaDTO();
+            }
+
             this.Persona.Nombre = textBoxNombre.Text.Trim();
             this.Persona.Apellido = textBoxApellido.Text.Trim();
             this.Persona.Direccion = textBoxDireccion.Text.Trim();
@@ -168,29 +176,28 @@ namespace WindowsForms
                 {
                     await PersonaApiClient.UpdateAsync(this.Persona);
                     MessageBox.Show("Persona actualizada correctamente.");
+                    this.Close();
                 }
                 else
                 {
                     await PersonaApiClient.AddAsync(this.Persona);
                     MessageBox.Show("Persona creada correctamente.");
-                }
 
-                this.Close();
+                    // Mostrar el formulario para crear un usuario asociado a esta persona
+                    UsuarioForm usuarioForm = new UsuarioForm();
+                    usuarioForm.Persona = this.Persona;
+                    usuarioForm.ShowDialog(this);
+
+                    this.Close();
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al guardar persona:\n{ex.Message}\n{ex.StackTrace}");
             }
         }
+        private async void canelarButton_Click(object sender, EventArgs e) { this.Close(); }
 
-        public class TipoPersona
-        {
-            public string Descripcion { get; set; }
-        }
-
-        private void canelarButton_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
     }
 }
+
