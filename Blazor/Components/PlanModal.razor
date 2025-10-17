@@ -1,0 +1,98 @@
+@using DTOs
+@using Api.Clients
+@inject IJSRuntime JSRuntime
+
+<div class="modal fade @(showModal ? "show d-block" : "")" tabindex="-1" style="background: rgba(0,0,0,0.4);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@((editing?.Id_plan == 0) ? "Nuevo Plan" : "Editar Plan")</h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label class="form-label">Descripción</label>
+                    <input class="form-control" @bind="editing.Desc_plan" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Especialidad</label>
+                    <select class="form-select" @bind="editing.Id_especialidad">
+                        <option value="0">-- Seleccionar especialidad --</option>
+                        @if (especialidades != null)
+                        {
+                            @foreach (var e in especialidades)
+                            {
+                                <option value="@e.Id_especialidad">@e.Desc_esp</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="Close">Cancelar</button>
+                <button class="btn btn-primary" @onclick="Save">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool showModal;
+    private PlanDTO editing = new PlanDTO();
+    private List<EspecialidadDTO>? especialidades;
+
+    [Parameter] public EventCallback OnPlanChanged { get; set; }
+
+    private async Task LoadEspecialidadesSafe()
+    {
+        try
+        {
+            especialidades = (await EspecialidadApiClient.GetAllAsync())?.ToList() ?? new List<EspecialidadDTO>();
+        }
+        catch
+        {
+            especialidades = new List<EspecialidadDTO>();
+        }
+    }
+
+    public async Task ShowAddModal()
+    {
+        editing = new PlanDTO();
+        await LoadEspecialidadesSafe();
+        showModal = true;
+        StateHasChanged();
+    }
+
+    public async Task ShowEditModal(PlanDTO p)
+    {
+        editing = new PlanDTO
+        {
+            Id_plan = p.Id_plan,
+            Desc_plan = p.Desc_plan,
+            Id_especialidad = p.Id_especialidad
+        };
+        await LoadEspecialidadesSafe();
+        showModal = true;
+        StateHasChanged();
+    }
+
+    private void Close() => showModal = false;
+
+    private async Task Save()
+    {
+        try
+        {
+            if (editing.Id_plan == 0)
+                await PlanApiClient.AddAsync(editing);
+            else
+                await PlanApiClient.UpdateAsync(editing);
+
+            showModal = false;
+            await OnPlanChanged.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar: " + ex.Message);
+        }
+    }
+}   

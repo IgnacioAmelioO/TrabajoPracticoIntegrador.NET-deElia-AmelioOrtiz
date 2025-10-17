@@ -1,0 +1,126 @@
+@page "/cursos"
+@using DTOs
+@using Api.Clients
+@using System.Linq
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Cursos</PageTitle>
+
+<div class="container-fluid">
+    <h3>Cursos</h3>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="async () => await OpenAddModal()">Agregar</button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Año</th>
+                        <th>Cupo</th>
+                        <th>Materia</th>
+                        <th>Comisión</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (cursos != null && cursos.Any())
+                    {
+                        @foreach (var c in cursos)
+                        {
+                            <tr>
+                                <td>@c.Id_curso</td>
+                                <td>@c.Anio_calendario</td>
+                                <td>@c.Cupo</td>
+                                <td>@(materias?.FirstOrDefault(m => m.Id_materia == c.Id_materia)?.Desc_materia ?? c.Id_materia.ToString())</td>
+                                <td>@(comisiones?.FirstOrDefault(cm => cm.Id_comision == c.Id_comision)?.Desc_comision ?? c.Id_comision.ToString())</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="async () => await OpenEditModal(c)">Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCurso(c.Id_curso)">Eliminar</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<CursoModal @ref="cursoModal" OnCursoChanged="LoadCursos" />
+
+@code {
+    private List<CursoDTO>? cursos;
+    private List<MateriaDTO>? materias;
+    private List<ComisionDTO>? comisiones;
+    private bool loading = true;
+    private string errorMessage = string.Empty;
+    private CursoModal cursoModal = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCursos();
+    }
+
+    private async Task LoadCursos()
+    {
+        try
+        {
+            loading = true;
+            cursos = (await CursoApiClient.GetAllAsync())?.ToList();
+            materias = (await MateriaApiClient.GetAllAsync())?.ToList();
+            comisiones = (await ComisionApiClient.GetAllAsync())?.ToList();
+            errorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error al cargar cursos/materias/comisiones: " + ex.Message;
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenAddModal()
+    {
+        if (cursoModal != null)
+            await cursoModal.ShowAddModal();
+    }
+
+    private async Task OpenEditModal(CursoDTO c)
+    {
+        if (cursoModal != null)
+            await cursoModal.ShowEditModal(c);
+    }
+
+    private async Task DeleteCurso(int id)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Eliminar curso {id}?")) return;
+        try
+        {
+            await CursoApiClient.DeleteAsync(id);
+            await LoadCursos();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar: " + ex.Message);
+        }
+    }
+}

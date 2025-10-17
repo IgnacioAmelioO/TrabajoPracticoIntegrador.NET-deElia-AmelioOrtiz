@@ -45,14 +45,20 @@ namespace Data
             using var context = CreateContext();
             return context.Cursos.ToList();
         }
-        // Se modifica solo el cupo?? / Se puede modificar todo??
+
+        // Actualizar todos los campos relevantes: año, cupo, materia y comisión
         public bool Update(Curso curso)
         {
             using var context = CreateContext();
             var existingCurso = context.Cursos.Find(curso.Id_curso);
             if (existingCurso != null)
             {
+                // Aplicar validaciones/sets a través de los métodos del aggregate (evita asignaciones directas)
+                existingCurso.SetAnio_calendario(curso.Anio_calendario);
                 existingCurso.SetCupo(curso.Cupo);
+                existingCurso.SetId_materia(curso.Id_materia);
+                existingCurso.SetId_comision(curso.Id_comision);
+
                 context.SaveChanges();
                 return true;
             }

@@ -38,9 +38,24 @@ namespace WindowsForm
         }
 
         private void cursosButton_Click(object sender, EventArgs e)
-        {CursosLista cursosLista = new CursosLista();
+        {
+            CursosLista cursosLista = new CursosLista();
             cursosLista.ShowDialog();
 
+        }
+
+
+
+        private void Materiasbutton_Click(object sender, EventArgs e)
+        {
+            MateriasLista materiasLista = new MateriasLista();
+            materiasLista.ShowDialog();
+        }
+
+        private void Comisionesbutton_Click(object sender, EventArgs e)
+        {
+            ComisionesLista comisionesLista = new ComisionesLista();
+            comisionesLista.ShowDialog();
         }
     }
 }

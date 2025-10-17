@@ -10,7 +10,7 @@ namespace DTOs
     {public int Id_comision { get; set; }
      public string Desc_comision { get; set; }
 
-     public int Anio_especialidad { get; set; }
+        public int Anio_especialidad { get; set; } = 1;
 
      public int Id_plan { get; set; }
      }

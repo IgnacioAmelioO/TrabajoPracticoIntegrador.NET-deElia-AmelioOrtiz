@@ -1,0 +1,128 @@
+@page "/personas"
+@using DTOs
+@using Api.Clients
+@using System.Linq
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Personas</PageTitle>
+
+<div class="container-fluid">
+    <h3>Personas</h3>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="async () => await OpenAddModal()">Agregar</button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Legajo</th>
+                        <th>Tipo</th>
+                        <th>Plan</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (personas != null && personas.Any())
+                    {
+                        @foreach (var p in personas)
+                        {
+                            <tr>
+                                <td>@p.Id_persona</td>
+                                <td>@p.Nombre</td>
+                                <td>@p.Apellido</td>
+                                <td>@p.Email</td>
+                                <td>@p.Legajo</td>
+                                <td>@p.Tipo_persona</td>
+                                <td>@(plans?.FirstOrDefault(x => x.Id_plan == p.Id_plan)?.Desc_plan ?? p.Id_plan.ToString())</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="async () => await OpenEditModal(p)">Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeletePersona(p.Id_persona)">Eliminar</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<PersonaModal @ref="personaModal" OnPersonaChanged="LoadPersonas" />
+
+@code {
+    private List<PersonaDTO>? personas;
+    private List<PlanDTO>? plans;
+    private bool loading = true;
+    private string errorMessage = string.Empty;
+    private PersonaModal personaModal = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPersonas();
+    }
+
+    private async Task LoadPersonas()
+    {
+        try
+        {
+            loading = true;
+            personas = (await PersonaApiClient.GetAllAsync())?.ToList();
+            plans = (await PlanApiClient.GetAllAsync())?.ToList();
+            errorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error al cargar personas o planes: " + ex.Message;
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenAddModal()
+    {
+        if (personaModal != null)
+            await personaModal.ShowAddModal();
+    }
+
+    private async Task OpenEditModal(PersonaDTO p)
+    {
+        if (personaModal != null)
+            await personaModal.ShowEditModal(p);
+    }
+
+    private async Task DeletePersona(int id)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Eliminar persona {id}?")) return;
+        try
+        {
+            await PersonaApiClient.DeleteAsync(id);
+            await LoadPersonas();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar: " + ex.Message);
+        }
+    }
+}

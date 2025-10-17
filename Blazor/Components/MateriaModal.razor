@@ -1,0 +1,108 @@
+@using DTOs
+@using Api.Clients
+@inject IJSRuntime JSRuntime
+
+<div class="modal fade @(showModal ? "show d-block" : "")" tabindex="-1" style="background: rgba(0,0,0,0.4);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@((editing?.Id_materia == 0) ? "Nueva Materia" : "Editar Materia")</h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label class="form-label">Descripción</label>
+                    <input class="form-control" @bind="editing.Desc_materia" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Horas semanales</label>
+                    <input type="number" class="form-control" @bind="editing.Hs_semanales" min="0" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Horas totales</label>
+                    <input type="number" class="form-control" @bind="editing.Hs_totales" min="0" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Plan</label>
+                    <select class="form-select" @bind="editing.Id_plan">
+                        <option value="0">-- Seleccionar plan --</option>
+                        @if (plans != null)
+                        {
+                            @foreach (var plan in plans)
+                            {
+                                <option value="@plan.Id_plan">@plan.Desc_plan</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="Close">Cancelar</button>
+                <button class="btn btn-primary" @onclick="Save">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool showModal;
+    private MateriaDTO editing = new MateriaDTO();
+    private List<PlanDTO>? plans;
+
+    [Parameter] public EventCallback OnMateriaChanged { get; set; }
+
+    private async Task LoadPlansSafe()
+    {
+        try
+        {
+            plans = (await PlanApiClient.GetAllAsync())?.ToList() ?? new List<PlanDTO>();
+        }
+        catch
+        {
+            plans = new List<PlanDTO>();
+        }
+    }
+
+    public async Task ShowAddModal()
+    {
+        editing = new MateriaDTO();
+        await LoadPlansSafe();
+        showModal = true;
+        StateHasChanged();
+    }
+
+    public async Task ShowEditModal(MateriaDTO m)
+    {
+        editing = new MateriaDTO
+        {
+            Id_materia = m.Id_materia,
+            Desc_materia = m.Desc_materia,
+            Hs_semanales = m.Hs_semanales,
+            Hs_totales = m.Hs_totales,
+            Id_plan = m.Id_plan
+        };
+        await LoadPlansSafe();
+        showModal = true;
+        StateHasChanged();
+    }
+
+    private void Close() => showModal = false;
+
+    private async Task Save()
+    {
+        try
+        {
+            if (editing.Id_materia == 0)
+                await MateriaApiClient.AddAsync(editing);
+            else
+                await MateriaApiClient.UpdateAsync(editing);
+
+            showModal = false;
+            await OnMateriaChanged.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar: " + ex.Message);
+        }
+    }
+}

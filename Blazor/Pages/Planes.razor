@@ -1,0 +1,117 @@
+@page "/planes"
+@using DTOs
+@using Api.Clients
+@using System.Linq
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Planes</PageTitle>
+
+<div class="container-fluid">
+    <h3>Planes</h3>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="async () => await OpenAddModal()">Agregar</button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Descripción</th>
+                        <th>Especialidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (planes != null && planes.Any())
+                    {
+                        @foreach (var p in planes)
+                        {
+                            <tr>
+                                <td>@p.Id_plan</td>
+                                <td>@p.Desc_plan</td>
+                                <td>@(especialidades?.FirstOrDefault(e => e.Id_especialidad == p.Id_especialidad)?.Desc_esp ?? p.Id_especialidad.ToString())</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="async () => await OpenEditModal(p)">Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeletePlan(p.Id_plan)">Eliminar</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<PlanModal @ref="planModal" OnPlanChanged="LoadPlanes" />
+
+@code {
+    private List<PlanDTO>? planes;
+    private List<EspecialidadDTO>? especialidades;
+    private bool loading = true;
+    private string errorMessage = string.Empty;
+    private PlanModal planModal = null!;
+
+    protected override async Task OnInitializedAsync() => await LoadPlanes();
+
+    private async Task LoadPlanes()
+    {
+        try
+        {
+            loading = true;
+            planes = (await PlanApiClient.GetAllAsync())?.ToList();
+            especialidades = (await EspecialidadApiClient.GetAllAsync())?.ToList();
+            errorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error al cargar planes o especialidades: " + ex.Message;
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenAddModal()
+    {
+        if (planModal != null)
+            await planModal.ShowAddModal();
+    }
+
+    private async Task OpenEditModal(PlanDTO p)
+    {
+        if (planModal != null)
+            await planModal.ShowEditModal(p);
+    }
+
+    private async Task DeletePlan(int id)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Eliminar plan {id}?")) return;
+        try
+        {
+            await PlanApiClient.DeleteAsync(id);
+            await LoadPlanes();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar: " + ex.Message);
+        }
+    }
+}

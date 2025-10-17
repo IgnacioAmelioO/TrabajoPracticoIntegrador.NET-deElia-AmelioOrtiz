@@ -1,0 +1,179 @@
+@using DTOs
+@using Api.Clients
+@using System
+@inject IJSRuntime JSRuntime
+
+<div class="modal fade @(showModal ? "show d-block" : "")" tabindex="-1" style="background: rgba(0,0,0,0.4);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@((editing?.Id_persona == 0) ? "Nueva Persona" : "Editar Persona")</h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label class="form-label">Nombre</label>
+                    <input class="form-control" @bind="editing.Nombre" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Apellido</label>
+                    <input class="form-control" @bind="editing.Apellido" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Dirección</label>
+                    <input class="form-control" @bind="editing.Direccion" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" @bind="editing.Email" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Teléfono</label>
+                    <input class="form-control" @bind="editing.Telefono" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Fecha nacimiento</label>
+                    <input type="date" class="form-control" @bind="FechaNacDate" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Legajo</label>
+                    <!-- legajo asignado por el sistema: mostrar pero no permitir edición -->
+                    <input type="text" class="form-control" @bind="editing.Legajo" readonly />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Tipo Persona</label>
+                    <select class="form-select" @bind="editing.Tipo_persona">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Alumno">Alumno</option>
+                        <option value="Docente">Profesor</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Plan</label>
+                    <select class="form-select" @bind="editing.Id_plan">
+                        <option value="0">-- Seleccionar plan --</option>
+                        @if (plans != null)
+                        {
+                            @foreach (var plan in plans)
+                            {
+                                <option value="@plan.Id_plan">@plan.Desc_plan</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="Close">Cancelar</button>
+                <button class="btn btn-primary" @onclick="Save">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool showModal;
+
+    private PersonaDTO editing = new PersonaDTO
+    {
+        Nombre = string.Empty,
+        Apellido = string.Empty,
+        Direccion = string.Empty,
+        Email = string.Empty,
+        Telefono = string.Empty,
+        Fecha_nac = DateOnly.FromDateTime(DateTime.Today),
+        Legajo = string.Empty,
+        Tipo_persona = string.Empty,
+        Id_plan = 0
+    };
+
+    private List<PlanDTO>? plans;
+
+    [Parameter] public EventCallback OnPersonaChanged { get; set; }
+
+    // DateTime binding para <input type="date">
+    private DateTime FechaNacDate
+    {
+        get => editing.Fecha_nac == default
+            ? DateTime.Today
+            : editing.Fecha_nac.ToDateTime(TimeOnly.MinValue);
+        set => editing.Fecha_nac = DateOnly.FromDateTime(value.Date);
+    }
+
+    // Cargar planes cada vez que se abre el modal para asegurar datos frescos
+    public async Task ShowAddModal()
+    {
+        editing = new PersonaDTO
+        {
+            Nombre = string.Empty,
+            Apellido = string.Empty,
+            Direccion = string.Empty,
+            Email = string.Empty,
+            Telefono = string.Empty,
+            Fecha_nac = DateOnly.FromDateTime(DateTime.Today),
+            Legajo = string.Empty, // sistem asigna
+            Tipo_persona = string.Empty,
+            Id_plan = 0
+        };
+
+        await LoadPlansSafe();
+
+        showModal = true;
+        StateHasChanged();
+    }
+
+    public async Task ShowEditModal(PersonaDTO p)
+    {
+        editing = new PersonaDTO
+        {
+            Id_persona = p.Id_persona,
+            Nombre = p.Nombre ?? string.Empty,
+            Apellido = p.Apellido ?? string.Empty,
+            Direccion = p.Direccion ?? string.Empty,
+            Email = p.Email ?? string.Empty,
+            Telefono = p.Telefono ?? string.Empty,
+            Fecha_nac = p.Fecha_nac,
+            Legajo = p.Legajo ?? string.Empty, // mostrar pero no permitir edición
+            Tipo_persona = p.Tipo_persona ?? string.Empty,
+            Id_plan = p.Id_plan
+        };
+
+        await LoadPlansSafe();
+
+        showModal = true;
+        StateHasChanged();
+    }
+
+    private async Task LoadPlansSafe()
+    {
+        try
+        {
+            var list = await PlanApiClient.GetAllAsync();
+            plans = list?.ToList() ?? new List<PlanDTO>();
+        }
+        catch
+        {
+            plans = new List<PlanDTO>();
+            // no hacer throw para no romper UI; el usuario verá la lista vacía
+        }
+    }
+
+    private void Close() => showModal = false;
+
+    private async Task Save()
+    {
+        try
+        {
+            if (editing.Id_persona == 0)
+                await PersonaApiClient.AddAsync(editing);
+            else
+                await PersonaApiClient.UpdateAsync(editing);
+
+            showModal = false;
+            await OnPersonaChanged.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar: " + ex.Message);
+        }
+    }
+}

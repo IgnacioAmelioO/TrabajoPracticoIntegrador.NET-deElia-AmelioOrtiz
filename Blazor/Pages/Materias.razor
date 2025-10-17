@@ -1,0 +1,121 @@
+@page "/materias"
+@using DTOs
+@using Api.Clients
+@using System.Linq
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Materias</PageTitle>
+
+<div class="container-fluid">
+    <h3>Materias</h3>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="async () => await OpenAddModal()">Agregar</button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Descripción</th>
+                        <th>Hs semanales</th>
+                        <th>Hs totales</th>
+                        <th>Plan</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (materias != null && materias.Any())
+                    {
+                        @foreach (var m in materias)
+                        {
+                            <tr>
+                                <td>@m.Id_materia</td>
+                                <td>@m.Desc_materia</td>
+                                <td>@m.Hs_semanales</td>
+                                <td>@m.Hs_totales</td>
+                                <td>@(plans?.FirstOrDefault(p => p.Id_plan == m.Id_plan)?.Desc_plan ?? m.Id_plan.ToString())</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" @onclick="async () => await OpenEditModal(m)">Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteMateria(m.Id_materia)">Eliminar</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<MateriaModal @ref="materiaModal" OnMateriaChanged="LoadMaterias" />
+
+@code {
+    private List<MateriaDTO>? materias;
+    private List<PlanDTO>? plans;
+    private bool loading = true;
+    private string errorMessage = string.Empty;
+    private MateriaModal materiaModal = null!;
+
+    protected override async Task OnInitializedAsync() => await LoadMaterias();
+
+    private async Task LoadMaterias()
+    {
+        try
+        {
+            loading = true;
+            materias = (await MateriaApiClient.GetAllAsync())?.ToList();
+            plans = (await PlanApiClient.GetAllAsync())?.ToList();
+            errorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error al cargar materias o planes: " + ex.Message;
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenAddModal()
+    {
+        if (materiaModal != null)
+            await materiaModal.ShowAddModal();
+    }
+
+    private async Task OpenEditModal(MateriaDTO m)
+    {
+        if (materiaModal != null)
+            await materiaModal.ShowEditModal(m);
+    }
+
+    private async Task DeleteMateria(int id)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"¿Eliminar materia {id}?")) return;
+        try
+        {
+            await MateriaApiClient.DeleteAsync(id);
+            await LoadMaterias();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar: " + ex.Message);
+        }
+    }
+}

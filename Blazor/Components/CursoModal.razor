@@ -1,0 +1,128 @@
+@using DTOs
+@using Api.Clients
+@using System
+@inject IJSRuntime JSRuntime
+
+<div class="modal fade @(showModal ? "show d-block" : "")" tabindex="-1" style="background: rgba(0,0,0,0.4);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@((editing?.Id_curso == 0) ? "Nuevo Curso" : "Editar Curso")</h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label class="form-label">Año</label>
+                    <input type="number" class="form-control" @bind="editing.Anio_calendario" min="1" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Cupo</label>
+                    <input type="number" class="form-control" @bind="editing.Cupo" min="0" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Materia</label>
+                    <select class="form-select" @bind="editing.Id_materia">
+                        <option value="0">-- Seleccionar materia --</option>
+                        @if (materias != null)
+                        {
+                            @foreach (var m in materias)
+                            {
+                                <option value="@m.Id_materia">@m.Desc_materia</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Comisión</label>
+                    <select class="form-select" @bind="editing.Id_comision">
+                        <option value="0">-- Seleccionar comisión --</option>
+                        @if (comisiones != null)
+                        {
+                            @foreach (var c in comisiones)
+                            {
+                                <option value="@c.Id_comision">@c.Desc_comision</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="Close">Cancelar</button>
+                <button class="btn btn-primary" @onclick="Save">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool showModal;
+    private CursoDTO editing = new CursoDTO();
+    private List<MateriaDTO>? materias;
+    private List<ComisionDTO>? comisiones;
+
+    [Parameter] public EventCallback OnCursoChanged { get; set; }
+
+    private async Task LoadMateriasComisionesSafe()
+    {
+        try
+        {
+            materias = (await MateriaApiClient.GetAllAsync())?.ToList() ?? new List<MateriaDTO>();
+        }
+        catch
+        {
+            materias = new List<MateriaDTO>();
+        }
+
+        try
+        {
+            comisiones = (await ComisionApiClient.GetAllAsync())?.ToList() ?? new List<ComisionDTO>();
+        }
+        catch
+        {
+            comisiones = new List<ComisionDTO>();
+        }
+    }
+
+    public async Task ShowAddModal()
+    {
+        editing = new CursoDTO();
+        await LoadMateriasComisionesSafe();
+        showModal = true;
+        StateHasChanged();
+    }
+
+    public async Task ShowEditModal(CursoDTO c)
+    {
+        editing = new CursoDTO
+        {
+            Id_curso = c.Id_curso,
+            Anio_calendario = c.Anio_calendario,
+            Cupo = c.Cupo,
+            Id_materia = c.Id_materia,
+            Id_comision = c.Id_comision
+        };
+        await LoadMateriasComisionesSafe();
+        showModal = true;
+        StateHasChanged();
+    }
+
+    private void Close() => showModal = false;
+
+    private async Task Save()
+    {
+        try
+        {
+            if (editing.Id_curso == 0)
+                await CursoApiClient.AddAsync(editing);
+            else
+                await CursoApiClient.UpdateAsync(editing);
+
+            showModal = false;
+            await OnCursoChanged.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar: " + ex.Message);
+        }
+    }
+}
