@@ -59,8 +59,8 @@ namespace Api.Clients
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Error detectando plataforma: {ex.Message}");
             }
 
-            // URL por defecto para Windows/otras plataformas
-            string defaultUrl = "https://localhost:7111/";
+            // URL por defecto para Windows/otras plataformas - actualizada para coincidir con launchSettings.json
+            string defaultUrl = "https://localhost:7003/";
             System.Diagnostics.Debug.WriteLine($"[DEBUG] Usando URL por defecto: {defaultUrl}");
             return defaultUrl;
         }

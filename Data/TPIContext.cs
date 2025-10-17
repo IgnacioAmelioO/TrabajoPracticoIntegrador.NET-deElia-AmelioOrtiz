@@ -21,9 +21,9 @@ namespace Data
         public DbSet<Comision> Comisiones { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
 
-        public TPIContext() { }
-
-        public TPIContext(DbContextOptions<TPIContext> options) : base(options) { }
+        public TPIContext() {
+            this.Database.EnsureCreated();
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

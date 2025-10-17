@@ -3,6 +3,7 @@ using Domain.Services;
 using DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
 using System.Text;
 using TrabajoPracticoIntegrador;
 
@@ -14,27 +15,76 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpLogging(o => { });
 
+// Configure JWT
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSettings["Key"];
+var issuer = jwtSettings["Issuer"];
+var audience = jwtSettings["Audience"];
 
-// Configuración de JWT
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+// Validate JWT settings
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new InvalidOperationException("JWT Key is not configured in appsettings.json");
+}
+
+if (secretKey.Length < 32)
+{
+    throw new InvalidOperationException("JWT Key is too short. It should be at least 32 characters long.");
+}
+
+Debug.WriteLine($"[DEBUG] JWT Key length: {secretKey.Length}");
+Debug.WriteLine($"[DEBUG] JWT Issuer: {issuer}");
+Debug.WriteLine($"[DEBUG] JWT Audience: {audience}");
+
+// Add Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ??
-                     builder.Configuration["Jwt:Key"] ??
-                     throw new InvalidOperationException("JWT Key no configurada");
-
-        options.TokenValidationParameters = new TokenValidationParameters
+        ValidateIssuer = true,
+        ValidIssuer = issuer,
+        ValidateAudience = true,
+        ValidAudience = audience,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+        ClockSkew = TimeSpan.Zero
+    };
+    
+    // Add event handling for better debugging
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
         {
-            ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-            ClockSkew = TimeSpan.Zero
-        };
-    });
+            Debug.WriteLine($"[ERROR] JWT Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Debug.WriteLine("[DEBUG] JWT Token validated successfully");
+            return Task.CompletedTask;
+        },
+        OnMessageReceived = context =>
+        {
+            Debug.WriteLine("[DEBUG] JWT Token received");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            Debug.WriteLine("[DEBUG] JWT Challenge issued");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+// Add Authorization
+builder.Services.AddAuthorization();
 
 // Add CORS for Blazor WebAssembly
 builder.Services.AddCors(options =>
@@ -55,7 +105,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    //Falta configurar de manera correcta        
     app.UseHttpLogging();
 }
 
@@ -64,24 +113,31 @@ app.UseHttpsRedirection();
 // Use CORS
 app.UseCors("AllowBlazorWasm");
 
-// ================= PERSONAS CRUD =================
+// Configure authentication and authorization middleware
+// These lines are important and must be before the endpoint mappings
+app.UseAuthentication();
+app.UseAuthorization();
 
+// ================= AUTH ENDPOINTS =================
+app.MapAuthEndpoints();
+
+// ================= PERSONAS CRUD =================
 app.MapPersonaEndpoints();
 
 // ================= PLANES CRUD =================
-
 app.MapPlanEndpoints();
 
 // ================= ESPECIALIDADES CRUD =================
-
 app.MapEspecialidadEndpoints();
 
-// ================= CRUSOS CRUD =================
-
+// ================= CURSOS CRUD =================
 app.MapCursoEndpoints();
 
 app.MapComisionEndpoints();
 
 app.MapMateriaEndpoints();
+
+// ================= USUARIOS CRUD =================
+app.MapUsuarioEndpoints();
 
 app.Run();
