@@ -71,7 +71,7 @@ namespace Api.Clients
             }
         }
 
-        public async static Task AddAsync(PersonaDTO persona)
+        public async static Task<PersonaDTO> AddAsync(PersonaDTO persona)
         {
             try
             {
@@ -82,6 +82,8 @@ namespace Api.Clients
                     string errorContent = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Error al crear persona. Status: {response.StatusCode}, Detalle: {errorContent}");
                 }
+
+                return await response.Content.ReadFromJsonAsync<PersonaDTO>();
             }
             catch (HttpRequestException ex)
             {

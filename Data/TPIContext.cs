@@ -95,7 +95,7 @@ namespace Data
                 entity.Property(e => e.Id_plan).IsRequired();
                 entity.Property(e => e.Fecha_nac).IsRequired();
 
-                entity.HasIndex(e => e.Email).IsUnique();
+               // entity.HasIndex(e => e.Email).IsUnique();
 
                 entity.HasOne<Plan>()
                     .WithMany()

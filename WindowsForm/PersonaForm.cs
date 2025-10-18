@@ -180,9 +180,9 @@ namespace WindowsForms
                 }
                 else
                 {
-                    await PersonaApiClient.AddAsync(this.Persona);
+                    this.Persona = await PersonaApiClient.AddAsync(this.Persona);
                     MessageBox.Show("Persona creada correctamente.");
-
+                    
                     // Mostrar el formulario para crear un usuario asociado a esta persona
                     UsuarioForm usuarioForm = new UsuarioForm();
                     usuarioForm.Persona = this.Persona;
