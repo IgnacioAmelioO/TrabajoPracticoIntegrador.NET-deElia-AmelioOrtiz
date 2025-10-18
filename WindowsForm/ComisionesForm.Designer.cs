@@ -11,7 +11,7 @@ namespace WindowsForms
         private System.Windows.Forms.Button buttonGuardar;
         private System.Windows.Forms.Button buttonCancelar;
 
-        // Labels añadidos
+       
         private System.Windows.Forms.Label labelID_comision;
         private System.Windows.Forms.Label labelDesc_comision;
         private System.Windows.Forms.Label labelAnio_comision;
@@ -34,7 +34,7 @@ namespace WindowsForms
             buttonGuardar = new System.Windows.Forms.Button();
             buttonCancelar = new System.Windows.Forms.Button();
 
-            // Inicializar labels
+            
             labelID_comision = new System.Windows.Forms.Label();
             labelDesc_comision = new System.Windows.Forms.Label();
             labelAnio_comision = new System.Windows.Forms.Label();
@@ -42,7 +42,7 @@ namespace WindowsForms
 
             SuspendLayout();
 
-            // Labels - posición y texto
+            
             labelID_comision.Location = new System.Drawing.Point(20, 2);
             labelID_comision.Size = new System.Drawing.Size(60, 16);
             labelID_comision.Text = "ID";
@@ -59,7 +59,7 @@ namespace WindowsForms
             labelPlan_comision.Size = new System.Drawing.Size(80, 16);
             labelPlan_comision.Text = "Plan";
 
-            // Controles existentes
+            
             textBoxID_comision.Location = new System.Drawing.Point(20, 20);
             textBoxID_comision.Size = new System.Drawing.Size(60, 23);
             textBoxID_comision.ReadOnly = true;
@@ -85,7 +85,7 @@ namespace WindowsForms
             buttonCancelar.Location = new System.Drawing.Point(220, 140);
             buttonCancelar.Click += buttonCancelar_Click;
 
-            // Añadir controles y labels al formulario (orden lógico)
+           
             Controls.Add(labelID_comision);
             Controls.Add(labelDesc_comision);
             Controls.Add(labelAnio_comision);

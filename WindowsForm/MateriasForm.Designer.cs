@@ -11,7 +11,7 @@
         private System.Windows.Forms.Button buttonGuardar;
         private System.Windows.Forms.Button buttonCancelar;
 
-        // Labels añadidos
+        
         private System.Windows.Forms.Label labelID_materia;
         private System.Windows.Forms.Label labelDesc_materia;
         private System.Windows.Forms.Label labelHsSem_materia;

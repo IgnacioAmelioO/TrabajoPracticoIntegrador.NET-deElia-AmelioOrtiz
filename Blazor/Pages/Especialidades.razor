@@ -102,7 +102,7 @@
         {
             loading = true;
             especialidades = (await EspecialidadApiClient.GetAllAsync())?.ToList();
-            successMessage = string.Empty; // Clear success message when reloading
+            successMessage = string.Empty; 
         }
         catch (Exception ex)
         {
@@ -134,7 +134,7 @@
         }
         catch (Exception ex)
         {
-            // Verificar si el error es de dependencia
+            
             if (ex.Message.Contains("REFERENCE constraint") || 
                 ex.Message.Contains("clave foránea") || 
                 ex.Message.Contains("dependencies"))

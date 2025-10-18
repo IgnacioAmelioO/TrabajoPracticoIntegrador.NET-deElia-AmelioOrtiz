@@ -9,6 +9,7 @@ namespace Api.Auth.WindowsForms
         private static string? _currentToken;
         private static DateTime _tokenExpiration;
         private static string? _currentUsername;
+        private static int? _currentPersonaId; // ✅ nuevo campo
 
         public event Action<bool>? AuthenticationStateChanged;
 
@@ -29,12 +30,18 @@ namespace Api.Auth.WindowsForms
             return isAuth ? _currentUsername : null;
         }
 
+        public async Task<int?> GetPersonaIdAsync() // ✅ nuevo método
+        {
+            var isAuth = await IsAuthenticatedAsync();
+            return isAuth ? _currentPersonaId : null;
+        }
+
         public async Task<bool> LoginAsync(string username, string password)
         {
             try
             {
                 Debug.WriteLine($"[DEBUG] Login attempt for user: {username}");
-                
+
                 var request = new LoginRequest
                 {
                     Username = username,
@@ -47,30 +54,20 @@ namespace Api.Auth.WindowsForms
                 if (response != null && !string.IsNullOrEmpty(response.Token))
                 {
                     Debug.WriteLine($"[DEBUG] Login successful for user: {username}");
-                    Debug.WriteLine($"[DEBUG] Token received, length: {response.Token.Length}");
                     Debug.WriteLine($"[DEBUG] Token expiration: {response.ExpiresAt}");
-                    
-                    // Validate token format (simple check)
-                    if (!response.Token.Contains("."))
-                    {
-                        Debug.WriteLine("[ERROR] Invalid token format");
-                        throw new InvalidOperationException("El token recibido no tiene un formato JWT válido");
-                    }
-                    
+
                     if (response.ExpiresAt <= DateTime.UtcNow)
-                    {
-                        Debug.WriteLine("[ERROR] Token already expired");
                         throw new InvalidOperationException("El token recibido ya ha expirado");
-                    }
 
                     _currentToken = response.Token;
                     _tokenExpiration = response.ExpiresAt;
                     _currentUsername = response.Username;
+                    _currentPersonaId = response.PersonaId; // ✅ guardar personaId
 
                     AuthenticationStateChanged?.Invoke(true);
                     return true;
                 }
-                
+
                 Debug.WriteLine("[ERROR] Login failed: null response or empty token");
                 return false;
             }
@@ -78,11 +75,8 @@ namespace Api.Auth.WindowsForms
             {
                 Debug.WriteLine($"[ERROR] Login exception: {ex.Message}");
                 if (ex.InnerException != null)
-                {
                     Debug.WriteLine($"[ERROR] Inner exception: {ex.InnerException.Message}");
-                }
-                
-                // Re-throw the exception to be handled by the UI layer
+
                 throw;
             }
         }
@@ -93,7 +87,7 @@ namespace Api.Auth.WindowsForms
             _currentToken = null;
             _tokenExpiration = default;
             _currentUsername = null;
-
+            _currentPersonaId = null; // ✅ limpiar personaId
             AuthenticationStateChanged?.Invoke(false);
         }
 

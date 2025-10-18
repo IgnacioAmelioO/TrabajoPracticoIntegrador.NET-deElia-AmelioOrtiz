@@ -140,4 +140,7 @@ app.MapMateriaEndpoints();
 // ================= USUARIOS CRUD =================
 app.MapUsuarioEndpoints();
 
+// ================= ALUMNO INSCRIPCIONES CRUD =================
+app.MapAlumnoInscripcionEndpoints();
+
 app.Run();
