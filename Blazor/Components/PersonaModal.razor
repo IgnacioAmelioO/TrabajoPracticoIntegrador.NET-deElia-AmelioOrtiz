@@ -37,7 +37,7 @@
                 </div>
                 <div class="mb-2">
                     <label class="form-label">Legajo</label>
-                    <!-- legajo asignado por el sistema: mostrar pero no permitir edición -->
+                   
                     <input type="text" class="form-control" @bind="editing.Legajo" readonly />
                 </div>
                 <div class="mb-2">
@@ -90,7 +90,7 @@
 
     [Parameter] public EventCallback OnPersonaChanged { get; set; }
 
-    // DateTime binding para <input type="date">
+    
     private DateTime FechaNacDate
     {
         get => editing.Fecha_nac == default
@@ -99,7 +99,7 @@
         set => editing.Fecha_nac = DateOnly.FromDateTime(value.Date);
     }
 
-    // Cargar planes cada vez que se abre el modal para asegurar datos frescos
+   
     public async Task ShowAddModal()
     {
         editing = new PersonaDTO
@@ -110,7 +110,7 @@
             Email = string.Empty,
             Telefono = string.Empty,
             Fecha_nac = DateOnly.FromDateTime(DateTime.Today),
-            Legajo = string.Empty, // sistem asigna
+            Legajo = string.Empty, 
             Tipo_persona = string.Empty,
             Id_plan = 0
         };
@@ -132,7 +132,7 @@
             Email = p.Email ?? string.Empty,
             Telefono = p.Telefono ?? string.Empty,
             Fecha_nac = p.Fecha_nac,
-            Legajo = p.Legajo ?? string.Empty, // mostrar pero no permitir edición
+            Legajo = p.Legajo ?? string.Empty, 
             Tipo_persona = p.Tipo_persona ?? string.Empty,
             Id_plan = p.Id_plan
         };
@@ -153,7 +153,7 @@
         catch
         {
             plans = new List<PlanDTO>();
-            // no hacer throw para no romper UI; el usuario verá la lista vacía
+           
         }
     }
 

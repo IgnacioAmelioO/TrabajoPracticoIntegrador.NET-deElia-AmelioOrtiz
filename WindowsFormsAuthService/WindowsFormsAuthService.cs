@@ -34,7 +34,7 @@ namespace Api.Auth.WindowsForms
             try
             {
                 Debug.WriteLine($"[DEBUG] Login attempt for user: {username}");
-                
+
                 var request = new LoginRequest
                 {
                     Username = username,
@@ -49,14 +49,14 @@ namespace Api.Auth.WindowsForms
                     Debug.WriteLine($"[DEBUG] Login successful for user: {username}");
                     Debug.WriteLine($"[DEBUG] Token received, length: {response.Token.Length}");
                     Debug.WriteLine($"[DEBUG] Token expiration: {response.ExpiresAt}");
-                    
+
                     // Validate token format (simple check)
                     if (!response.Token.Contains("."))
                     {
                         Debug.WriteLine("[ERROR] Invalid token format");
                         throw new InvalidOperationException("El token recibido no tiene un formato JWT válido");
                     }
-                    
+
                     if (response.ExpiresAt <= DateTime.UtcNow)
                     {
                         Debug.WriteLine("[ERROR] Token already expired");
@@ -70,7 +70,7 @@ namespace Api.Auth.WindowsForms
                     AuthenticationStateChanged?.Invoke(true);
                     return true;
                 }
-                
+
                 Debug.WriteLine("[ERROR] Login failed: null response or empty token");
                 return false;
             }
@@ -81,8 +81,8 @@ namespace Api.Auth.WindowsForms
                 {
                     Debug.WriteLine($"[ERROR] Inner exception: {ex.InnerException.Message}");
                 }
+
                 
-                // Re-throw the exception to be handled by the UI layer
                 throw;
             }
         }

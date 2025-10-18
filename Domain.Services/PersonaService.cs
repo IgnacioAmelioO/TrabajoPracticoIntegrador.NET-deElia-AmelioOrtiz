@@ -23,7 +23,7 @@ namespace Domain.Services
 
             personaRepository.Add(persona);
 
-            dto.Id_persona = persona.Id_persona; // Asignar el Id generado al DTO
+            dto.Id_persona = persona.Id_persona; 
 
             return dto;
         }

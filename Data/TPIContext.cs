@@ -20,6 +20,7 @@ namespace Data
         public DbSet<Materia> Materias { get; set; }
         public DbSet<Comision> Comisiones { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet <AlumnoInscripcion> AlumnoInscripciones { get; set; }
 
         public TPIContext() {
             this.Database.EnsureCreated();
@@ -266,6 +267,25 @@ namespace Data
                 //    Id_persona = adminUser.Id_persona
                 //}); 
             });
+
+            modelBuilder.Entity<AlumnoInscripcion>(entity =>
+            {
+                entity.HasKey(e => e.Id_inscripcion);
+                entity.Property(e => e.Id_inscripcion).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id_alumno).IsRequired();
+                entity.Property(e => e.Id_curso).IsRequired();
+                entity.Property(e => e.Condicion).HasMaxLength(50);
+                entity.Property(e => e.Nota);
+                entity.HasOne<Persona>()
+                    .WithMany()
+                    .HasForeignKey(ai => ai.Id_alumno)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne<Curso>()
+                    .WithMany()
+                    .HasForeignKey(ai => ai.Id_curso)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
         }
     }
 }

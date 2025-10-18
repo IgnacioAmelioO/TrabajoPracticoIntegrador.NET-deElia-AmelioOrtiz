@@ -13,7 +13,7 @@ namespace Domain.Model
         public int Id_curso { get; private set; }
         public int? Nota { get; private set; }
         public string? Condicion { get; private set; }
-        // Constructor sin parámetros para Entity Framework
+        
         private AlumnoInscripcion() { }
         public AlumnoInscripcion(int id_inscripcion, int id_alumno, int id_curso, int? nota = null, string? condicion = null)
         {

@@ -36,9 +36,9 @@ namespace WindowsForms
                         passwordTextBox.Focus();
                     }
                 }
-                catch (JsonException ex) 
+                catch (JsonException ex)
                 {
-                    // Specific handling for JSON parsing errors which could cause the Base64 issue
+                    
                     MessageBox.Show(
                         $"Error al procesar la respuesta del servidor: {ex.Message}\n\n" +
                         "El servidor respondió con un formato inválido. Contacte al administrador del sistema.",
@@ -46,9 +46,9 @@ namespace WindowsForms
                 }
                 catch (HttpRequestException ex)
                 {
-                    // Connection errors
+                   
                     string baseUrl = GetBaseUrl() ?? "URL no configurada";
-                    
+
                     MessageBox.Show(
                         $"Error al conectar con el servidor API: {ex.Message}\n\n" +
                         $"Verifique que el servidor API esté en ejecución y que la URL sea correcta.\n" +
@@ -57,29 +57,29 @@ namespace WindowsForms
                 }
                 catch (InvalidOperationException ex)
                 {
-                    // Handle specific validation errors
+                    
                     MessageBox.Show(
                         $"Error en la operación de inicio de sesión: {ex.Message}",
                         "Error de validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (Exception ex)
                 {
-                    // General errors with more detailed info
-                    string errorDetails = $"Error: {ex.Message}";
                     
-                    // Add inner exception if available
+                    string errorDetails = $"Error: {ex.Message}";
+
+                    
                     if (ex.InnerException != null)
                     {
                         errorDetails += $"\n\nDetalle: {ex.InnerException.Message}";
                     }
+
                     
-                    // Add instructions for common errors
                     errorDetails += "\n\nPosibles soluciones:" +
                         "\n• Verifique que el servidor API esté en ejecución" +
                         "\n• Verifique su conexión a internet" +
                         "\n• Verifique la URL configurada para la API";
 
-                    MessageBox.Show(errorDetails, "Error al iniciar sesión", 
+                    MessageBox.Show(errorDetails, "Error al iniciar sesión",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
@@ -92,12 +92,12 @@ namespace WindowsForms
 
         private string? GetBaseUrl()
         {
-            // Reflect the base URL used in the API client
+            
             string? envUrl = Environment.GetEnvironmentVariable("TPI_API_BASE_URL");
             if (!string.IsNullOrEmpty(envUrl))
                 return envUrl;
-            
-            return "https://localhost:7003/"; // This should match the URL in BaseApiClient
+
+            return "https://localhost:7003/"; 
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
