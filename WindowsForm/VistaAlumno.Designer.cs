@@ -2,14 +2,10 @@
 {
     partial class VistaAlumno
     {
-        /// <summary>
-        /// Variable del diseñador requerida.
-        /// </summary>
+       
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Limpiar los recursos que se estén usando.
-        /// </summary>
+       
         /// <param name="disposing">true si los recursos administrados se deben eliminar; false en caso contrario.</param>
         protected override void Dispose(bool disposing)
         {
@@ -22,10 +18,7 @@
 
         #region Código generado por el Diseñador
 
-        /// <summary>
-        /// Método necesario para admitir el Diseñador. No modificar
-        /// el contenido de este método con el editor de código.
-        /// </summary>
+        
         private void InitializeComponent()
         {
             this.panelTop = new System.Windows.Forms.Panel();
@@ -36,9 +29,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.inscripcionesGrid)).BeginInit();
             this.panelTop.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // panelTop
-            // 
+            
             this.panelTop.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
                                                                           | System.Windows.Forms.AnchorStyles.Right)));
             this.panelTop.Controls.Add(this.lblWelcome);
@@ -48,9 +39,7 @@
             this.panelTop.Name = "panelTop";
             this.panelTop.Size = new System.Drawing.Size(760, 40);
             this.panelTop.TabIndex = 0;
-            // 
-            // lblWelcome
-            // 
+           
             this.lblWelcome.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblWelcome.AutoSize = true;
             this.lblWelcome.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -59,9 +48,7 @@
             this.lblWelcome.Size = new System.Drawing.Size(128, 19);
             this.lblWelcome.TabIndex = 0;
             this.lblWelcome.Text = "Bienvenido, Usuario";
-            // 
-            // btnRefrescar
-            // 
+            
             this.btnRefrescar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRefrescar.Location = new System.Drawing.Point(480, 6);
             this.btnRefrescar.Name = "btnRefrescar";
@@ -70,9 +57,7 @@
             this.btnRefrescar.Text = "Refrescar";
             this.btnRefrescar.UseVisualStyleBackColor = true;
             this.btnRefrescar.Click += new System.EventHandler(this.btnRefrescar_Click);
-            // 
-            // btnInscribirse
-            // 
+            
             this.btnInscribirse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnInscribirse.Location = new System.Drawing.Point(573, 6);
             this.btnInscribirse.Name = "btnInscribirse";
@@ -81,9 +66,7 @@
             this.btnInscribirse.Text = "Inscribirse a un nuevo curso";
             this.btnInscribirse.UseVisualStyleBackColor = true;
             this.btnInscribirse.Click += new System.EventHandler(this.btnInscribirse_Click);
-            // 
-            // inscripcionesGrid
-            // 
+            
             this.inscripcionesGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
                                                                                   | System.Windows.Forms.AnchorStyles.Left) 
                                                                                  | System.Windows.Forms.AnchorStyles.Right)));
@@ -96,9 +79,7 @@
             this.inscripcionesGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.inscripcionesGrid.Size = new System.Drawing.Size(760, 380);
             this.inscripcionesGrid.TabIndex = 3;
-            // 
-            // VistaAlumno
-            // 
+            
             this.ClientSize = new System.Drawing.Size(784, 450);
             this.Controls.Add(this.inscripcionesGrid);
             this.Controls.Add(this.panelTop);

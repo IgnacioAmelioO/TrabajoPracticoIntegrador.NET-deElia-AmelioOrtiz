@@ -18,15 +18,14 @@ namespace Data
             return inscripcion;
         }
 
-        // Nuevo: agrega la inscripción y decrementa el cupo del curso en la misma transacción/contexto.
-        // Lanza ArgumentException si el curso no existe y InvalidOperationException si no hay cupo.
+      
         public AlumnoInscripcion AddWithCupoCheck(AlumnoInscripcion inscripcion)
         {
             using var context = CreateContext();
 
             var curso = context.Cursos.Find(inscripcion.Id_curso);
             if (curso == null)
-                // lanzar KeyNotFoundException para que el caller lo trate como 404
+                
                 throw new KeyNotFoundException($"Curso con id {inscripcion.Id_curso} no encontrado.");
 
             if (curso.Cupo <= 0)
@@ -65,7 +64,7 @@ namespace Data
             return context.AlumnoInscripciones.ToList();
         }
 
-        // Nuevo: obtener inscripciones por Id_alumno
+        
         public IEnumerable<AlumnoInscripcion> GetByAlumno(int id_alumno)
         {
             using var context = CreateContext();
@@ -80,7 +79,7 @@ namespace Data
             var existing = context.AlumnoInscripciones.Find(inscripcion.Id_inscripcion);
             if (existing != null)
             {
-                // Aplicar cambios mediante los métodos del aggregate
+                
                 existing.SetId_alumno(inscripcion.Id_alumno);
                 existing.SetId_curso(inscripcion.Id_curso);
                 existing.SetNota(inscripcion.Nota);
@@ -92,7 +91,7 @@ namespace Data
             return false;
         }
 
-        // Opcional: comprobar existencia por alumno+curso (si hace falta para reglas de negocio)
+        
         public bool ExistsByAlumnoCurso(int id_alumno, int id_curso, int? idToExclude = null)
         {
             using var context = CreateContext();

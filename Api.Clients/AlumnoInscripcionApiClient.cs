@@ -51,7 +51,7 @@ namespace Api.Clients
             }
         }
 
-        // Nuevo: obtener inscripciones por Id_alumno (endpoint: /alumnoinscripciones/alumno/{id_alumno})
+       
         public static async Task<IEnumerable<AlumnoInscripcionDTO>> GetByAlumnoAsync(int id_alumno)
         {
             try

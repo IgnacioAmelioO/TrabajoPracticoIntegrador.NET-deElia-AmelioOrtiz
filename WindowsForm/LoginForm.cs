@@ -1,7 +1,6 @@
 ﻿using Api.Clients;
 using System.Net.Http;
 using System.Text.Json;
-using WindowsForm;
 
 namespace WindowsForms
 {
@@ -26,36 +25,8 @@ namespace WindowsForms
 
                     if (success)
                     {
-                        // ✅ Recuperar personaId del servicio de autenticación
-                        var personaId = await authService.GetPersonaIdAsync();
-
-                        if (personaId == null)
-                        {
-                            MessageBox.Show("No se pudo obtener el ID de la persona asociada al usuario.",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-
-                       
-
-                        var persona = await PersonaApiClient.GetAsync(personaId.Value);
-
-
-                        if (persona != null)
-                        {
-                            var vistaAlumno = new VistaAlumno
-                            {
-                                Persona = persona
-                            };
-
-                            vistaAlumno.Show();
-                            this.Hide();
-                        }
-                        else
-                        {
-                            MessageBox.Show("Error al obtener los datos del usuario.", "Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
+                        this.DialogResult = DialogResult.OK;
+                        this.Close();
                     }
                     else
                     {
@@ -67,29 +38,42 @@ namespace WindowsForms
                 }
                 catch (JsonException ex)
                 {
-                    MessageBox.Show($"Error al procesar la respuesta del servidor: {ex.Message}",
+                    
+                    MessageBox.Show(
+                        $"Error al procesar la respuesta del servidor: {ex.Message}\n\n" +
+                        "El servidor respondió con un formato inválido. Contacte al administrador del sistema.",
                         "Error de formato", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (HttpRequestException ex)
                 {
+                   
                     string baseUrl = GetBaseUrl() ?? "URL no configurada";
+
                     MessageBox.Show(
                         $"Error al conectar con el servidor API: {ex.Message}\n\n" +
-                        $"Verifique que el servidor API esté en ejecución.\n" +
+                        $"Verifique que el servidor API esté en ejecución y que la URL sea correcta.\n" +
                         $"URL configurada: {baseUrl}",
                         "Error de conexión", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (InvalidOperationException ex)
                 {
-                    MessageBox.Show($"Error en la operación de inicio de sesión: {ex.Message}",
+                    
+                    MessageBox.Show(
+                        $"Error en la operación de inicio de sesión: {ex.Message}",
                         "Error de validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (Exception ex)
                 {
+                    
                     string errorDetails = $"Error: {ex.Message}";
-                    if (ex.InnerException != null)
-                        errorDetails += $"\n\nDetalle: {ex.InnerException.Message}";
 
+                    
+                    if (ex.InnerException != null)
+                    {
+                        errorDetails += $"\n\nDetalle: {ex.InnerException.Message}";
+                    }
+
+                    
                     errorDetails += "\n\nPosibles soluciones:" +
                         "\n• Verifique que el servidor API esté en ejecución" +
                         "\n• Verifique su conexión a internet" +
@@ -108,11 +92,12 @@ namespace WindowsForms
 
         private string? GetBaseUrl()
         {
+            
             string? envUrl = Environment.GetEnvironmentVariable("TPI_API_BASE_URL");
             if (!string.IsNullOrEmpty(envUrl))
                 return envUrl;
 
-            return "https://localhost:7003/";
+            return "https://localhost:7003/"; 
         }
 
         private void cancelButton_Click(object sender, EventArgs e)

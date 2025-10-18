@@ -10,8 +10,7 @@ namespace WindowsForm
 {
     public partial class VistaAlumno : Form
     {
-        // La aplicación debe asignar la PersonaDTO del usuario logueado antes de mostrar el formulario.
-        // Hacer el campo nullable para evitar CS8618 si no se inicializa en el constructor.
+        
         private PersonaDTO? persona;
         public PersonaDTO? Persona
         {
@@ -62,7 +61,7 @@ namespace WindowsForm
                     return;
                 }
 
-                // Intentar obtener inscripciones desde el API usando método dedicado si está disponible
+                
                 try
                 {
                     var byAlumno = await AlumnoInscripcionApiClient.GetByAlumnoAsync(persona.Id_persona);
@@ -73,7 +72,7 @@ namespace WindowsForm
 
                 }
 
-                // Cargar cursos/materias/comisiones para mostrar descripciones
+               
                 var cursos = (await CursoApiClient.GetAllAsync())?.ToList() ?? new List<CursoDTO>();
                 var materias = (await MateriaApiClient.GetAllAsync())?.ToList() ?? new List<MateriaDTO>();
                 var comisiones = (await ComisionApiClient.GetAllAsync())?.ToList() ?? new List<ComisionDTO>();
@@ -117,7 +116,7 @@ namespace WindowsForm
 
             try
             {
-                // Obtener todos los cursos y filtrar por cupo y por los que ya posee el alumno
+               
                 var cursos = (await CursoApiClient.GetAllAsync())?.ToList() ?? new List<CursoDTO>();
                 var disponibles = cursos.Where(c => c.Cupo > 0).ToList();
 
@@ -130,7 +129,7 @@ namespace WindowsForm
                     return;
                 }
 
-                // Modal simple para seleccionar curso
+                
                 using var selector = new Form
                 {
                     Text = "Seleccionar curso para inscribirse",

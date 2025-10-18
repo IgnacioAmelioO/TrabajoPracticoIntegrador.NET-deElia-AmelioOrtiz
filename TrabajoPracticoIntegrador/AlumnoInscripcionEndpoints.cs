@@ -20,7 +20,7 @@ namespace TrabajoPracticoIntegrador
             .Produces<AlumnoInscripcionDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
-            // Endpoint para obtener inscripciones por Id_alumno usando el servicio dedicado
+            
             app.MapGet("/alumnoinscripciones/alumno/{id_alumno}", (int id_alumno) =>
             {
                 var service = new AlumnoInscripcionService();
@@ -52,17 +52,17 @@ namespace TrabajoPracticoIntegrador
                 }
                 catch (KeyNotFoundException ex)
                 {
-                    // curso no encontrado -> 404
+                   
                     return Results.NotFound(new { error = ex.Message });
                 }
                 catch (InvalidOperationException ex)
                 {
-                    // sin cupo -> 409 Conflict (o 400 si prefieres)
+                    
                     return Results.Conflict(new { error = ex.Message });
                 }
                 catch (ArgumentException ex)
                 {
-                    // violaciones de negocio -> 400
+                   
                     return Results.BadRequest(new { error = ex.Message });
                 }
             })

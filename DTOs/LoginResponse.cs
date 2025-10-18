@@ -18,9 +18,9 @@ namespace DTOs
         [JsonPropertyName("username")]
         public string Username { get; set; } = string.Empty;
 
-        public int PersonaId { get; set; }
+        
 
-        // Helper method for validation
+        
         public bool IsValid()
         {
             return !string.IsNullOrEmpty(Token) && 
