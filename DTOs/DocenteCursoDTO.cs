@@ -8,9 +8,9 @@ namespace DTOs
 {
     public class DocenteCursoDTO
     {
-        public int Id_dictado { get; private set; }
-        public int Id_curso { get; private set; }
-        public int Id_docente { get; private set; }
-        public int Cargo { get; private set; }
+        public int Id_dictado { get; set; }
+        public int Id_curso { get; set; }
+        public int Id_docente { get; set; }
+        public int Cargo { get; set; }
     }
 }
