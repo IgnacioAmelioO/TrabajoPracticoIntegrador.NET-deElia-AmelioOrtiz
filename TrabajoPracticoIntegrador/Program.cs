@@ -137,6 +137,9 @@ app.MapComisionEndpoints();
 
 app.MapMateriaEndpoints();
 
+// ================= DOCENTES-CURSOS CRUD =================
+app.MapDocenteCursoEndpoints();
+
 // ================= USUARIOS CRUD =================
 app.MapUsuarioEndpoints();
 
