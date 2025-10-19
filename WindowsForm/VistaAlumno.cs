@@ -29,6 +29,11 @@ namespace WindowsForm
             InitializeComponent();
         }
 
+        public VistaAlumno(PersonaDTO personaRecibida) : this() 
+        {
+            
+            this.Persona = personaRecibida;
+        }
         private void UpdateWelcomeLabel()
         {
             if (lblWelcome == null) return;
@@ -80,16 +85,16 @@ namespace WindowsForm
                 var view = inscripciones.Select(i =>
                 {
                     var curso = cursos.FirstOrDefault(c => c.Id_curso == i.Id_curso);
-                    string cursoDesc = curso != null
-                        ? $"{(materias.FirstOrDefault(m => m.Id_materia == curso.Id_materia)?.Desc_materia ?? "Materia")} - {(comisiones.FirstOrDefault(cm => cm.Id_comision == curso.Id_comision)?.Desc_comision ?? "Comisión")} (Id {i.Id_curso})"
-                        : $"Curso Id {i.Id_curso}";
+                    var materia = curso != null ? materias.FirstOrDefault(m => m.Id_materia == curso.Id_materia) : null;
+                    var comision = curso != null ? comisiones.FirstOrDefault(cm => cm.Id_comision == curso.Id_comision) : null;
+
                     return new
                     {
-                        i.Id_inscripcion,
-                        i.Id_curso,
-                        Curso = cursoDesc,
-                        i.Nota,
-                        i.Condicion
+                        Anio_calendario = curso?.Anio_calendario ?? 0,
+                        Materia = materia?.Desc_materia ?? "Desconocida",
+                        Comision = comision?.Desc_comision ?? "Desconocida",
+                        Nota = i.Nota.HasValue ? i.Nota.ToString() : string.Empty,
+                        Estado = i.Condicion ?? "Activo"
                     };
                 }).ToList();
 
@@ -120,8 +125,8 @@ namespace WindowsForm
                 var cursos = (await CursoApiClient.GetAllAsync())?.ToList() ?? new List<CursoDTO>();
                 var disponibles = cursos.Where(c => c.Cupo > 0).ToList();
 
-                var inscritosIds = inscripciones.Select(i => i.Id_curso).ToHashSet();
-                disponibles = disponibles.Where(c => !inscritosIds.Contains(c.Id_curso)).ToList();
+                var inscriptosIds = inscripciones.Select(i => i.Id_curso).ToHashSet();
+                disponibles = disponibles.Where(c => !inscriptosIds.Contains(c.Id_curso)).ToList();
 
                 if (!disponibles.Any())
                 {
@@ -194,7 +199,7 @@ namespace WindowsForm
                             Id_alumno = persona.Id_persona,
                             Id_curso = idCurso,
                             Nota = null,
-                            Condicion = null
+                            Condicion = "Activo"
                         };
 
                         await AlumnoInscripcionApiClient.AddAsync(nueva);

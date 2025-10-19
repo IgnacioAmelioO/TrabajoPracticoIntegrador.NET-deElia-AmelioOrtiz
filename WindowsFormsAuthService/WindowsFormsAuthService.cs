@@ -9,6 +9,7 @@ namespace Api.Auth.WindowsForms
         private static string? _currentToken;
         private static DateTime _tokenExpiration;
         private static string? _currentUsername;
+        private static int? _currentId_persona;
 
         public event Action<bool>? AuthenticationStateChanged;
 
@@ -27,6 +28,11 @@ namespace Api.Auth.WindowsForms
         {
             var isAuth = await IsAuthenticatedAsync();
             return isAuth ? _currentUsername : null;
+        }
+        public async Task<int?> GetPersonaIdAsync()
+        {
+            var isAuth = await IsAuthenticatedAsync();
+            return isAuth ? _currentId_persona : null;
         }
 
         public async Task<bool> LoginAsync(string username, string password)
@@ -50,7 +56,7 @@ namespace Api.Auth.WindowsForms
                     Debug.WriteLine($"[DEBUG] Token received, length: {response.Token.Length}");
                     Debug.WriteLine($"[DEBUG] Token expiration: {response.ExpiresAt}");
 
-                    // Validate token format (simple check)
+                   
                     if (!response.Token.Contains("."))
                     {
                         Debug.WriteLine("[ERROR] Invalid token format");
@@ -66,6 +72,7 @@ namespace Api.Auth.WindowsForms
                     _currentToken = response.Token;
                     _tokenExpiration = response.ExpiresAt;
                     _currentUsername = response.Username;
+                    _currentId_persona = response.Id_persona;
 
                     AuthenticationStateChanged?.Invoke(true);
                     return true;

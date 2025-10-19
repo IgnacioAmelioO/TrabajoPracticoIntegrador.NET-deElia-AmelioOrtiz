@@ -1,6 +1,7 @@
 ﻿using Api.Clients;
 using System.Net.Http;
 using System.Text.Json;
+using WindowsForm;
 
 namespace WindowsForms
 {
@@ -25,9 +26,50 @@ namespace WindowsForms
 
                     if (success)
                     {
-                        this.DialogResult = DialogResult.OK;
+                        loginButton.Text = "Cargando perfil...";
+
+                        
+                        int? personaId = await authService.GetPersonaIdAsync();
+
+                        if (personaId == null)
+                        {
+                          
+                            throw new InvalidOperationException("No se pudo obtener la información del usuario después del inicio de sesión.");
+                        }
+
+                      
+                        var persona = await PersonaApiClient.GetAsync(personaId.Value);
+
+                        if (persona == null)
+                        {
+                            throw new InvalidOperationException($"No se encontraron los datos para la persona con ID: {personaId.Value}");
+                        }
+
+                        
+                        this.Hide();
+
+                        
+                        if (persona.Tipo_persona.Equals("Alumno", StringComparison.OrdinalIgnoreCase))
+                        {
+                            using (var formAlumno = new VistaAlumno(persona))
+                            {
+                                formAlumno.ShowDialog();
+                            }
+                        }
+                        else if (persona.Tipo_persona.Equals("Docente", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // aca llamar a la vista docente cuando esté implementada
+                        }
+                        else
+                        {
+                            
+                            throw new InvalidOperationException($"El Tipo persona '{persona.Tipo_persona}' no es reconocido por la aplicación.");
+                        }
+
+                        
                         this.Close();
                     }
+                
                     else
                     {
                         MessageBox.Show("Usuario o contraseña incorrectos.", "Error de autenticación",

@@ -15,7 +15,7 @@ namespace Domain.Services
         {
             var cursoRepository = new CursoRepository();
 
-            // Validación para evitar cursos duplicados (mismo año, materia y comisión)
+            
             if (cursoRepository.CursoExists(dto.Anio_calendario, dto.Id_materia, dto.Id_comision))
             {
                 throw new ArgumentException("Ya existe un curso para esa materia y comisión en el año especificado.",
@@ -26,7 +26,7 @@ namespace Domain.Services
 
             cursoRepository.Add(curso);
 
-            dto.Id_curso = curso.Id_curso; // Asignar el Id generado al DTO
+            dto.Id_curso = curso.Id_curso; 
 
             return dto;
         }
@@ -71,7 +71,7 @@ namespace Domain.Services
         {
             var cursoRepository = new CursoRepository();
 
-            // Validación para evitar cursos duplicados en la actualización
+            
             if (cursoRepository.CursoExists(dto.Anio_calendario, dto.Id_materia, dto.Id_comision, dto.Id_curso))
             {
                 throw new ArgumentException("Ya existe un curso para esa materia y comisión en el año especificado.",

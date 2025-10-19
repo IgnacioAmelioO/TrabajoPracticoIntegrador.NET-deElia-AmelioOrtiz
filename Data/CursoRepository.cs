@@ -46,14 +46,14 @@ namespace Data
             return context.Cursos.ToList();
         }
 
-        // Actualizar todos los campos relevantes: año, cupo, materia y comisión
+       
         public bool Update(Curso curso)
         {
             using var context = CreateContext();
             var existingCurso = context.Cursos.Find(curso.Id_curso);
             if (existingCurso != null)
             {
-                // Aplicar validaciones/sets a través de los métodos del aggregate (evita asignaciones directas)
+                
                 existingCurso.SetAnio_calendario(curso.Anio_calendario);
                 existingCurso.SetCupo(curso.Cupo);
                 existingCurso.SetId_materia(curso.Id_materia);

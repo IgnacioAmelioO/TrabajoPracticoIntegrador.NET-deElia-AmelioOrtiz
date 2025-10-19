@@ -13,11 +13,13 @@ namespace Domain.Services
     public class AuthService
     {
         private readonly UsuarioRepository usuarioRepository;
+        private readonly PersonaRepository _personaRepository;
         private readonly IConfiguration configuration;
 
         public AuthService(IConfiguration configuration)
         {
             usuarioRepository = new UsuarioRepository();
+            _personaRepository = new PersonaRepository();
             this.configuration = configuration;
         }
 
@@ -40,13 +42,15 @@ namespace Domain.Services
                 {
                     Token = token,
                     ExpiresAt = expiresAt,
-                    Username = usuario.Username
+                    Username = usuario.Username,
+                    Id_persona = usuario.Id_persona
+
                 };
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[ERROR] Login failed: {ex.Message}");
-                // Re-throw to let calling code handle the exception
+                
                 throw;
             }
         }
@@ -71,7 +75,7 @@ namespace Domain.Services
                 Debug.WriteLine($"[DEBUG] JWT Issuer: {issuer}");
                 Debug.WriteLine($"[DEBUG] JWT Audience: {audience}");
 
-                // Ensure the key meets minimum length requirements (at least 256 bits / 32 bytes)
+                
                 if (secretKey.Length < 32)
                 {
                     Debug.WriteLine($"[ERROR] JWT Key is too short: {secretKey.Length} chars");
