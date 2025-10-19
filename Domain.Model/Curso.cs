@@ -37,8 +37,8 @@ namespace Domain.Model
         }
         public void SetCupo(int cupo)
         {
-            if (cupo <= 0)
-                throw new ArgumentException("El cupo debe ser mayor que 0.", nameof(cupo));
+            if (cupo < 0)
+                throw new ArgumentException("El cupo no puede ser negativo.", nameof(cupo));
             Cupo = cupo;
         }
         public void SetId_materia(int id_materia)

@@ -18,6 +18,12 @@ namespace DTOs
         [JsonPropertyName("username")]
         public string Username { get; set; } = string.Empty;
 
+        [JsonPropertyName("Id_persona")]
+        public int Id_persona { get; set; }
+
+       
+    
+
         
 
         

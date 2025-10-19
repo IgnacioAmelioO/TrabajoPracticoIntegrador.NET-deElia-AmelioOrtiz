@@ -81,6 +81,7 @@ namespace Domain.Services
                 FechaCreacion = usuario.FechaCreacion,
                 Activo = usuario.Activo,
                 Id_persona = usuario.Id_persona
+
             };
         }
 
@@ -95,7 +96,7 @@ namespace Domain.Services
             usuario.SetEmail(updateDto.Email);
             usuario.SetActivo(updateDto.Activo);
 
-            // Solo actualizar contraseña si se proporciona
+            
             if (!string.IsNullOrWhiteSpace(updateDto.Password))
             {
                 usuario.SetPassword(updateDto.Password);
