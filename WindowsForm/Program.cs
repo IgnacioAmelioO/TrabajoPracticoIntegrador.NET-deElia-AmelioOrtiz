@@ -48,7 +48,7 @@ namespace WindowsForm
 
                 try
                 {
-                    Application.Run(new Inicio());
+                    Application.Run(new VistaDocente(12));
                     break; // La aplicación se cerró normalmente
                 }
                 catch (UnauthorizedAccessException ex)
