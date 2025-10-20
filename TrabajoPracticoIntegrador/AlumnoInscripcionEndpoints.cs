@@ -33,6 +33,15 @@ namespace TrabajoPracticoIntegrador
             .Produces<List<AlumnoInscripcionDTO>>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
+            app.MapGet("/alumnoinscripciones/curso/{id_curso}", (int id_curso) =>
+            {
+                var service = new AlumnoInscripcionService();
+                var list = service.GetByCurso(id_curso);
+
+                if (list == null || !list.Any()) return Results.NotFound();
+                return Results.Ok(list);
+            }).WithName("GetInscripcionesCurso").Produces<List<AlumnoInscripcionDTO>>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound);
+
             app.MapGet("/alumnoinscripciones", () =>
             {
                 var service = new AlumnoInscripcionService();

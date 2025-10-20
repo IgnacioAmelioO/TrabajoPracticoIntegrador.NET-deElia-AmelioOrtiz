@@ -99,5 +99,19 @@ namespace Domain.Services
                 Condicion = ent.Condicion
             }).ToList();
         }
+
+        public IEnumerable<AlumnoInscripcionDTO> GetByCurso(int id_curso)
+        {
+            var repo = new AlumnoInscripcionRepository();
+            var list = repo.GetByCurso(id_curso);
+            return list.Select(ent => new AlumnoInscripcionDTO
+            {
+                Id_inscripcion = ent.Id_inscripcion,
+                Id_alumno = ent.Id_alumno,
+                Id_curso = ent.Id_curso,
+                Nota = ent.Nota,
+                Condicion = ent.Condicion
+            }).ToList();
+        }
     }
 }

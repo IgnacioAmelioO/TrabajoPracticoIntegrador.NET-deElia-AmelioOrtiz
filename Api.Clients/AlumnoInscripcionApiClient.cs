@@ -68,6 +68,23 @@ namespace Api.Clients
             }
         }
 
+        public static async Task<IEnumerable<AlumnoInscripcionDTO>> GetByCursoAsync(int id_curso)
+        {
+            try
+            {
+                var response = await client.GetAsync($"alumnoinscripciones/curso/{id_curso}");
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<IEnumerable<AlumnoInscripcionDTO>>();
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error al obtener alumnos del curso {id_curso}. Status: {response.StatusCode}, Detalle: {error}");
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Error de conexión al obtener alumnos del curso {id_curso}: {ex.Message}", ex);
+            }
+        }
+
+
         public static async Task AddAsync(AlumnoInscripcionDTO dto)
         {
             try

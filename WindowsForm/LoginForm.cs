@@ -58,7 +58,10 @@ namespace WindowsForms
                         }
                         else if (persona.Tipo_persona.Equals("Docente", StringComparison.OrdinalIgnoreCase))
                         {
-                            // aca llamar a la vista docente cuando esté implementada
+                            using (var formdocente = new VistaDocente(persona.Id_persona))
+                            {
+                                formdocente.ShowDialog();
+                            }
                         }
                         else
                         {

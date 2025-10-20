@@ -73,6 +73,14 @@ namespace Data
                 .ToList();
         }
 
+        public IEnumerable<AlumnoInscripcion> GetByCurso(int id_curso)
+        {
+            using var context = CreateContext();
+            return context.AlumnoInscripciones
+                .Where(a => a.Id_curso == id_curso)
+                .ToList();
+        }
+
         public bool Update(AlumnoInscripcion inscripcion)
         {
             using var context = CreateContext();
