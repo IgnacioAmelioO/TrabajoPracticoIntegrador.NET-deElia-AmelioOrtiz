@@ -63,6 +63,13 @@ namespace WindowsForms
                                 formdocente.ShowDialog();
                             }
                         }
+                        else if (persona.Tipo_persona.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                        {
+                            using (var formadmin = new Inicio())
+                            {
+                                formadmin.ShowDialog();
+                            }
+                        }
                         else
                         {
                             

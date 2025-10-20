@@ -28,7 +28,7 @@ namespace Domain.Model
             SetEmail(email);
             SetTelefono(telefono);
             SetFecha_nac(fecha_nac);
-            SetLegajo(legajo);
+            SetLegajo(legajo, tipo_persona, id);
             SetTipo_persona(tipo_persona);
             SetId_plan(id_plan);
         }
@@ -41,9 +41,20 @@ namespace Domain.Model
             Id_persona = id;
         }
 
-        public void SetLegajo(string legajo)
+        public void SetLegajo(string legajo, string tipo_persona, int id)
         {
-            Legajo = legajo;
+            if (tipo_persona == "Alumno")
+            {
+                Legajo = "A" + id.ToString("D6");
+            }
+            else if (tipo_persona == "Docente")
+            {
+                Legajo = "D" + id.ToString("D6");
+            }
+            else
+            {
+                Legajo = "ADM" + id.ToString("D6");
+            }
         }
 
         public void SetNombre(string nombre)
@@ -78,8 +89,8 @@ namespace Domain.Model
         {
             if (string.IsNullOrWhiteSpace(tipo_persona))
                 throw new ArgumentException("El tipo de persona no puede ser nulo o vacío.", nameof(tipo_persona));
-            if (tipo_persona != "Docente" && tipo_persona != "Alumno")
-                throw new ArgumentException("El tipo de persona debe ser 'Docente' o 'Alumno'.", nameof(tipo_persona));
+            if (tipo_persona != "Docente" && tipo_persona != "Alumno" && tipo_persona != "Admin")
+                throw new ArgumentException("El tipo de persona debe ser 'Docente', 'Alumno' o 'Admin'.", nameof(tipo_persona));
             Tipo_persona = tipo_persona;
         }
 

@@ -58,7 +58,7 @@ namespace Data
                 existingPersona.SetEmail(persona.Email);
                 existingPersona.SetTelefono(persona.Telefono);
                 existingPersona.SetFecha_nac(persona.Fecha_nac);
-                existingPersona.SetLegajo(persona.Legajo);
+                existingPersona.SetLegajo(persona.Legajo, persona.Tipo_persona, persona.Id_persona);
                 existingPersona.SetTipo_persona(persona.Tipo_persona);
                 existingPersona.SetId_plan(persona.Id_plan);
 

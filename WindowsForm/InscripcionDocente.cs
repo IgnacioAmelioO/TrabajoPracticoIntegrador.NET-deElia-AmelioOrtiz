@@ -18,8 +18,7 @@ namespace WindowsForm
         {
             InitializeComponent();
             this.Load += InscripcionDocente_Load;
-            
-            // Configurar el combo de cargos
+
             cargosComboBox.Items.Add(new { Text = "Titular", Value = 1 });
             cargosComboBox.Items.Add(new { Text = "Auxiliar", Value = 2 });
             cargosComboBox.Items.Add(new { Text = "Suplente", Value = 3 });
@@ -50,7 +49,6 @@ namespace WindowsForm
             {
                 this.Cursor = Cursors.WaitCursor;
 
-                // Obtener todos los cursos, materias y comisiones para realizar el mapeo
                 var cursosTask = CursoApiClient.GetAllAsync();
                 var materiasTask = MateriaApiClient.GetAllAsync();
                 var comisionesTask = ComisionApiClient.GetAllAsync();
@@ -63,11 +61,9 @@ namespace WindowsForm
                 var comisiones = await comisionesTask;
                 var docenteCursos = await docenteCursosTask;
 
-                // Filtrar los cursos a los que el docente ya está inscripto
                 var cursosInscriptos = docenteCursos.Select(dc => dc.Id_curso).ToList();
                 var cursosDisponibles = cursos.Where(c => !cursosInscriptos.Contains(c.Id_curso)).ToList();
 
-                // Crear una colección de objetos con la información combinada
                 var cursosView = cursosDisponibles
                     .Select(curso => {
                         var materia = materias.FirstOrDefault(m => m.Id_materia == curso.Id_materia);
@@ -84,28 +80,22 @@ namespace WindowsForm
                     })
                     .ToList();
 
-                // Configurar el DataGridView
                 cursoDataGridView.DataSource = cursosView;
 
-                // Configurar la apariencia y el formato de las columnas
                 cursoDataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
 
-                // Ocultar columnas que no son necesarias para la visualización
                 cursoDataGridView.Columns["Id_curso"].Visible = false;
 
-                // Renombrar columnas para mejor legibilidad
                 cursoDataGridView.Columns["Materia"].HeaderText = "Materia";
                 cursoDataGridView.Columns["Comision"].HeaderText = "Comisión";
                 cursoDataGridView.Columns["AnioCalendario"].HeaderText = "Año Calendario";
                 cursoDataGridView.Columns["Cupo"].HeaderText = "Cupo";
 
-                // Establecer el orden de las columnas
                 cursoDataGridView.Columns["Materia"].DisplayIndex = 0;
                 cursoDataGridView.Columns["Comision"].DisplayIndex = 1;
                 cursoDataGridView.Columns["AnioCalendario"].DisplayIndex = 2;
                 cursoDataGridView.Columns["Cupo"].DisplayIndex = 3;
 
-                // Mostrar mensaje si no hay cursos disponibles
                 if (cursosView.Count > 0)
                 {
                     labelNoData.Visible = false;
@@ -156,21 +146,18 @@ namespace WindowsForm
                 dynamic selectedCargo = cargosComboBox.SelectedItem;
                 int cargo = selectedCargo.Value;
 
-                // Crear la nueva inscripción
                 var docenteCurso = new DocenteCursoDTO
                 {
-                    Id_dictado = 0, // Se asignará en el servidor
+                    Id_dictado = 0,
                     Id_docente = _idDocente,
                     Id_curso = idCurso,
                     Cargo = cargo
                 };
 
-                // Enviar la inscripción al servidor
                 await DocenteCursoApiClient.AddAsync(docenteCurso);
                 
                 MessageBox.Show("Inscripción realizada con éxito.", "Inscripción", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
-                // Cerrar el formulario después de inscribirse
+
                 DialogResult = DialogResult.OK;
                 this.Close();
             }

@@ -22,7 +22,7 @@ namespace WindowsForm
         public DescripcionCurso()
         {
             InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false; // Temporalmente para depuración
+            CheckForIllegalCrossThreadCalls = false;
             this.Load += DescripcionCurso_Load;
         }
 
@@ -37,10 +37,8 @@ namespace WindowsForm
 
         private async void DescripcionCurso_Load(object sender, EventArgs e)
         {
-            // Mostrar información del curso
             lblTitulo.Text = $"Alumnos inscriptos al curso:";
-            
-            // Configurar el DataGridView antes de cualquier operación asincrónica
+
             ConfigurarGrillaAlumnos();
 
             await CargarAlumnosInscriptosAsync();
@@ -51,33 +49,28 @@ namespace WindowsForm
             try
             {
                 this.Cursor = Cursors.WaitCursor;
-                
-                // Obtener las inscripciones de los alumnos en este curso
+
                 var inscripcionesResponse = await AlumnoInscripcionApiClient.GetByCursoAsync(this.Curso.Id_curso);
-                // Asignar la respuesta a la lista de inscripciones
+
                 inscripciones = inscripcionesResponse.ToList();
-                
-                // Obtener los datos de los alumnos
+
                 var alumnosIds = inscripciones.Select(i => i.Id_alumno).ToList();
                 var personasResponse = await PersonaApiClient.GetAllAsync();
                 alumnos = personasResponse
                     .Where(p => alumnosIds.Contains(p.Id_persona))
                     .ToList();
-                
-                // Obtener materias y comisiones para mostrar información completa
+
                 var materiasResponse = await MateriaApiClient.GetAllAsync();
                 var comisionesResponse = await ComisionApiClient.GetAllAsync();
                 
                 var materia = materiasResponse.FirstOrDefault(m => m.Id_materia == curso.Id_materia);
                 var comision = comisionesResponse.FirstOrDefault(c => c.Id_comision == curso.Id_comision);
-                
-                // Mostrar información del curso
+
                 lblMateria.Text = $"Materia: {materia?.Desc_materia ?? "Desconocida"}";
                 lblComision.Text = $"Comisión: {comision?.Desc_comision ?? "Desconocida"}";
                 lblAño.Text = $"Año Calendario: {curso.Anio_calendario}";
                 lblCupo.Text = $"Cupo: {curso.Cupo}";
-                
-                // Cargar los datos en la grilla - usando el hilo UI
+
                 CargarDatosEnGrillaAlumnos();
             }
             catch (Exception ex)
@@ -92,11 +85,9 @@ namespace WindowsForm
         
         private void ConfigurarGrillaAlumnos()
         {
-            // 1. Configurar el DataGridView
             dgvAlumnos.AutoGenerateColumns = false;
             dgvAlumnos.Columns.Clear();
-            
-            // Columna para Id_inscripcion (oculta)
+
             var colIdInscripcion = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "Id_inscripcion",
@@ -104,8 +95,7 @@ namespace WindowsForm
                 HeaderText = "ID",
                 Visible = false
             };
-            
-            // Columna para Legajo
+
             var colLegajo = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "Legajo",
@@ -114,8 +104,7 @@ namespace WindowsForm
                 Width = 70,
                 ReadOnly = true
             };
-            
-            // Columna para Nombre completo
+
             var colNombre = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "NombreCompleto",
@@ -124,8 +113,7 @@ namespace WindowsForm
                 Width = 200,
                 ReadOnly = true
             };
-            
-            // Columna para Nota (editable)
+
             var colNota = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "Nota",
@@ -134,7 +122,6 @@ namespace WindowsForm
                 Width = 60
             };
             
-            // Columna para Condición (read-only)
             var colCondicion = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "Condicion",
@@ -144,7 +131,6 @@ namespace WindowsForm
                 ReadOnly = true
             };
             
-            // Agregar columnas al DataGridView
             dgvAlumnos.Columns.AddRange(new DataGridViewColumn[] {
                 colIdInscripcion, colLegajo, colNombre, colNota, colCondicion
             });
@@ -158,10 +144,8 @@ namespace WindowsForm
                 return;
             }
             
-            // Desconectar temporalmente el DataSource para evitar problemas de threading
             dgvAlumnos.DataSource = null;
-            
-            // Preparar los datos como DataTable
+
             var dt = new DataTable();
             dt.Columns.Add("Id_inscripcion", typeof(int));
             dt.Columns.Add("Legajo", typeof(string));
@@ -177,7 +161,7 @@ namespace WindowsForm
                 string condicion = inscripcion.Condicion ?? "Activo";
                 if (!condicionesValidas.Contains(condicion))
                 {
-                    condicion = "Activo"; // Valor por defecto
+                    condicion = "Activo";
                 }
                 
                 dt.Rows.Add(
@@ -189,7 +173,6 @@ namespace WindowsForm
                 );
             }
             
-            // Aplicar DataSource
             dgvAlumnos.DataSource = dt;
             
             lblNoAlumnos.Visible = dt.Rows.Count == 0;
@@ -209,7 +192,6 @@ namespace WindowsForm
                     return;
                 }
                 
-                // Recorrer cada fila de la grilla directamente
                 for (int i = 0; i < dgvAlumnos.Rows.Count; i++)
                 {
                     if (dgvAlumnos.Rows[i].IsNewRow) continue;
@@ -220,12 +202,10 @@ namespace WindowsForm
                     
                     if (inscripcion != null)
                     {
-                        // Obtener la nota directamente de la celda
                         string notaStr = row.Cells["Nota"].Value?.ToString() ?? "";
                         int? notaNueva = string.IsNullOrEmpty(notaStr) ? null : int.Parse(notaStr);
                         
-                        // Calcular la condición automáticamente según la nota
-                        string condicionNueva = "Activo"; // Por defecto
+                        string condicionNueva = "Activo";
                         
                         if (notaNueva.HasValue)
                         {
@@ -237,22 +217,19 @@ namespace WindowsForm
                             {
                                 condicionNueva = "Regular";
                             }
-                            else // nota >= 8
+                            else 
                             {
                                 condicionNueva = "Aprobado";
                             }
                         }
                         
-                        // Actualizar la celda de la condición en la grilla
                         row.Cells["Condicion"].Value = condicionNueva;
                         
-                        // Si hay cambios, actualizar
                         if (inscripcion.Nota != notaNueva || inscripcion.Condicion != condicionNueva)
                         {
                             inscripcion.Nota = notaNueva;
                             inscripcion.Condicion = condicionNueva;
                             
-                            // Actualizar en la API
                             await AlumnoInscripcionApiClient.UpdateAsync(inscripcion);
                             cambiosGuardados = true;
                         }

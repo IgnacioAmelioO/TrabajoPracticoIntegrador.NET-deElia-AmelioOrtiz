@@ -54,7 +54,8 @@ namespace WindowsForms
             var tiposPersona = new List<TipoPersona>
             {
                 new TipoPersona { Descripcion = "Alumno" },
-                new TipoPersona { Descripcion = "Docente" }
+                new TipoPersona { Descripcion = "Docente" },
+                new TipoPersona { Descripcion = "Admin"}
             };
 
             comboBoxTipo_persona.DataSource = tiposPersona;

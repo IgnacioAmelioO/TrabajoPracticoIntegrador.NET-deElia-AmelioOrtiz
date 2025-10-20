@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,9 +17,9 @@ namespace Data
         public DbSet<Materia> Materias { get; set; }
         public DbSet<Comision> Comisiones { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet <AlumnoInscripcion> AlumnoInscripciones { get; set; }
 
-        public TPIContext() {
+        public TPIContext()
+        {
             this.Database.EnsureCreated();
         }
 
@@ -44,22 +41,24 @@ namespace Data
         {
             base.OnModelCreating(modelBuilder);
 
-           
+            // -----------------------------
+            // ESPECIALIDAD
+            // -----------------------------
             modelBuilder.Entity<Especialidad>(entity =>
             {
                 entity.HasKey(e => e.Id_especialidad);
                 entity.Property(e => e.Id_especialidad).ValueGeneratedOnAdd();
                 entity.Property(e => e.Desc_esp).IsRequired().HasMaxLength(100);
-                
-                // Seed data for Especialidad
-                entity.HasData(new
-                {
-                    Id_especialidad = 1,
-                    Desc_esp = "Sistemas"
-                });
+
+                entity.HasData(
+                    new { Id_especialidad = 1, Desc_esp = "Sistemas" },
+                    new { Id_especialidad = 2, Desc_esp = "Electrónica" }
+                );
             });
 
-            
+            // -----------------------------
+            // PLAN
+            // -----------------------------
             modelBuilder.Entity<Plan>(entity =>
             {
                 entity.HasKey(e => e.Id_plan);
@@ -69,109 +68,17 @@ namespace Data
 
                 entity.HasOne<Especialidad>()
                     .WithMany()
-                    .HasForeignKey(p => p.Id_especialidad)
-                    ;
-                    
-                // Seed data for Plan
-                entity.HasData(new
-                {
-                    Id_plan = 1,
-                    Desc_plan = "Plan 2008",
-                    Id_especialidad = 1
-                });
+                    .HasForeignKey(p => p.Id_especialidad);
+
+                entity.HasData(
+                    new { Id_plan = 1, Desc_plan = "Plan 2008", Id_especialidad = 1 },
+                    new { Id_plan = 2, Desc_plan = "Plan 2015", Id_especialidad = 2 }
+                );
             });
 
-           
-            modelBuilder.Entity<Persona>(entity =>
-            {
-                entity.HasKey(e => e.Id_persona);
-                entity.Property(e => e.Id_persona).ValueGeneratedOnAdd();
-                entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Apellido).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Direccion).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.Telefono).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Legajo).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Tipo_persona).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Id_plan).IsRequired();
-                entity.Property(e => e.Fecha_nac).IsRequired();
-
-               // entity.HasIndex(e => e.Email).IsUnique();
-
-                entity.HasOne<Plan>()
-                    .WithMany()
-                    .HasForeignKey(p => p.Id_plan)
-                    .OnDelete(DeleteBehavior.Restrict);
-                    
-                // Seed data for Persona
-                entity.HasData(new
-                {
-                    Id_persona = 1,
-                    Nombre = "Admin",
-                    Apellido = "Sistema",
-                    Direccion = "Universidad Tecnológica Nacional",
-                    Email = "admin@utn.edu.ar",
-                    Telefono = "12345678",
-                    Fecha_nac = DateOnly.FromDateTime(DateTime.Now),
-                    Legajo = "ADMIN001",
-                    Tipo_persona = "Administrador",
-                    Id_plan = 1
-                });
-            });
-
-            
-            modelBuilder.Entity<Curso>(entity =>
-            {
-                entity.HasKey(e => e.Id_curso);
-                entity.Property(e => e.Id_curso).ValueGeneratedOnAdd();
-                entity.Property(e => e.Anio_calendario).IsRequired();
-                entity.Property(e => e.Cupo).IsRequired();
-                entity.Property(e => e.Id_materia).IsRequired();
-                entity.Property(e => e.Id_comision).IsRequired();
-            });
-
-           
-            modelBuilder.Entity<AlumnoInscripcion>(entity =>
-            {
-                entity.HasKey(e => e.Id_inscripcion);
-                entity.Property(e => e.Id_inscripcion).ValueGeneratedOnAdd();
-                entity.Property(e => e.Id_alumno).IsRequired();
-                entity.Property(e => e.Id_curso).IsRequired();
-                entity.Property(e => e.Condicion).HasMaxLength(50);
-                entity.Property(e => e.Nota);
-
-                entity.HasOne<Persona>()
-                    .WithMany()
-                    .HasForeignKey(ai => ai.Id_alumno)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne<Curso>()
-                    .WithMany()
-                    .HasForeignKey(ai => ai.Id_curso)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            
-            modelBuilder.Entity<DocenteCurso>(entity =>
-            {
-                entity.HasKey(e => e.Id_dictado);
-                entity.Property(e => e.Id_dictado).ValueGeneratedOnAdd();
-                entity.Property(e => e.Id_docente).IsRequired();
-                entity.Property(e => e.Id_curso).IsRequired();
-                entity.Property(e => e.Cargo).IsRequired();
-
-                entity.HasOne<Persona>()
-                    .WithMany()
-                    .HasForeignKey(dc => dc.Id_docente)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne<Curso>()
-                    .WithMany()
-                    .HasForeignKey(dc => dc.Id_curso)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
-           
+            // -----------------------------
+            // MATERIA
+            // -----------------------------
             modelBuilder.Entity<Materia>(entity =>
             {
                 entity.HasKey(m => m.Id_materia);
@@ -185,9 +92,17 @@ namespace Data
                     .WithMany()
                     .HasForeignKey(m => m.Id_plan)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasData(
+                    new { Id_materia = 1, Desc_materia = "Programación I", Hs_semanales = 6, Hs_totales = 90, Id_plan = 1 },
+                    new { Id_materia = 2, Desc_materia = "Bases de Datos", Hs_semanales = 4, Hs_totales = 64, Id_plan = 1 },
+                    new { Id_materia = 3, Desc_materia = "Electrónica Básica", Hs_semanales = 5, Hs_totales = 80, Id_plan = 2 }
+                );
             });
 
-            
+            // -----------------------------
+            // COMISION
+            // -----------------------------
             modelBuilder.Entity<Comision>(entity =>
             {
                 entity.HasKey(c => c.Id_comision);
@@ -200,92 +115,146 @@ namespace Data
                     .WithMany()
                     .HasForeignKey(c => c.Id_plan)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasData(
+                    new { Id_comision = 1, Desc_comision = "Comisión A", Anio_especialidad = 1, Id_plan = 1 },
+                    new { Id_comision = 2, Desc_comision = "Comisión B", Anio_especialidad = 2, Id_plan = 2 }
+                );
             });
 
+          
+            modelBuilder.Entity<Curso>(entity =>
+            {
+                entity.HasKey(e => e.Id_curso);
+                entity.Property(e => e.Id_curso).ValueGeneratedOnAdd();
+                entity.Property(e => e.Anio_calendario).IsRequired();
+                entity.Property(e => e.Cupo).IsRequired();
+                entity.Property(e => e.Id_materia).IsRequired();
+                entity.Property(e => e.Id_comision).IsRequired();
+
+                entity.HasData(
+                    new { Id_curso = 1, Anio_calendario = 2025, Cupo = 30, Id_materia = 1, Id_comision = 1 },
+                    new { Id_curso = 2, Anio_calendario = 2025, Cupo = 25, Id_materia = 2, Id_comision = 1 },
+                    new { Id_curso = 3, Anio_calendario = 2025, Cupo = 20, Id_materia = 3, Id_comision = 2 }
+                );
+            });
+
+            
+            modelBuilder.Entity<Persona>(entity =>
+            {
+                entity.HasKey(e => e.Id_persona);
+                entity.Property(e => e.Id_persona).ValueGeneratedOnAdd();
+
+                entity.HasData(
+                    new
+                    {
+                        Id_persona = 1,
+                        Nombre = "Admin",
+                        Apellido = "Sistema",
+                        Direccion = "UTN",
+                        Email = "admin@utn.edu.ar",
+                        Telefono = "12345678",
+                        Fecha_nac = DateOnly.FromDateTime(DateTime.Now.AddYears(-30)),
+                        Legajo = "ADMIN001",
+                        Tipo_persona = "Admin",
+                        Id_plan = 1
+                    },
+                    new
+                    {
+                        Id_persona = 2,
+                        Nombre = "Juan",
+                        Apellido = "Pérez",
+                        Direccion = "Av. Siempre Viva 123",
+                        Email = "juan.perez@utn.edu.ar",
+                        Telefono = "987654321",
+                        Fecha_nac = DateOnly.FromDateTime(DateTime.Now.AddYears(-22)),
+                        Legajo = "A001",
+                        Tipo_persona = "Alumno",
+                        Id_plan = 1
+                    },
+                    new
+                    {
+                        Id_persona = 3,
+                        Nombre = "María",
+                        Apellido = "López",
+                        Direccion = "Calle Falsa 456",
+                        Email = "maria.lopez@utn.edu.ar",
+                        Telefono = "654987321",
+                        Fecha_nac = DateOnly.FromDateTime(DateTime.Now.AddYears(-35)),
+                        Legajo = "D001",
+                        Tipo_persona = "Docente",
+                        Id_plan = 1
+                    }
+                );
+            });
+
+          
             modelBuilder.Entity<Usuario>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd();
+                entity.HasData(
+                    new
+                    {
+                        Id = 1,
+                        Username = "admin",
+                        Email = "admin@utn.edu.ar",
+                        PasswordHash = "e9zBfoqwzxHKQgWkj3qt82gOACblMENzV3rGFvpz/kk=",//123123
+                        Salt = "1oxOIZOEdxvAgTlYnMfnnMVG1BoZj7sHIbjxZW8aZSQ=",
+                        FechaCreacion = DateTime.Now,
+                        Activo = true,
+                        Id_persona = 1
+                    },
+                    new
+                    {
+                        Id = 2,
+                        Username = "juan",
+                        Email = "juan.perez@utn.edu.ar",
+                        PasswordHash = "e9zBfoqwzxHKQgWkj3qt82gOACblMENzV3rGFvpz/kk=",//123123
+                        Salt = "1oxOIZOEdxvAgTlYnMfnnMVG1BoZj7sHIbjxZW8aZSQ=",
+                        FechaCreacion = DateTime.Now,
+                        Activo = true,
+                        Id_persona = 2
+                    },
 
-                entity.Property(e => e.Username)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.Email)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
-                entity.Property(e => e.PasswordHash)
-                    .IsRequired()
-                    .HasMaxLength(255);
-
-                entity.Property(e => e.Salt)
-                    .IsRequired()
-                    .HasMaxLength(255);
-
-                entity.Property(e => e.FechaCreacion)
-                    .IsRequired();
-
-                entity.Property(e => e.Activo)
-                    .IsRequired();
-
-                entity.Property(e => e.Id_persona)
-                    .IsRequired();
-
-                // Restricciones únicas
-                entity.HasIndex(e => e.Username)
-                    .IsUnique();
-
-                entity.HasIndex(e => e.Email)
-                    .IsUnique();
-
-                entity.HasIndex(e => e.Id_persona)
-                    .IsUnique();
-
-                //entity.HasIndex(e => e.Cambia_clave)
-                  //  .IsUnique();
-
-                entity.HasOne<Persona>()
-                    .WithMany()
-                    .HasForeignKey(ai => ai.Id_persona)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                // Usuario administrador inicial con Id_persona=1
-                //var adminUser = new Domain.Model.Usuario(1, "admin", "admin@tpi.com", "admin123", DateTime.Now, true, 1);
-               
-                //entity.HasData(new
-                //{
-                //Id = adminUser.Id,
-                //Username = adminUser.Username,
-                //Email = adminUser.Email,
-                //PasswordHash = adminUser.PasswordHash,
-                //    Salt = adminUser.Salt,
-                //FechaCreacion = adminUser.FechaCreacion,
-                //Activo = adminUser.Activo,
-                //    Id_persona = adminUser.Id_persona
-                //}); 
+                    new
+                    {
+                        Id = 3,
+                        Username = "maria",
+                        Email = "maria.lopez@utn.edu.ar",
+                        PasswordHash = "e9zBfoqwzxHKQgWkj3qt82gOACblMENzV3rGFvpz/kk=",//123123
+                        Salt = "1oxOIZOEdxvAgTlYnMfnnMVG1BoZj7sHIbjxZW8aZSQ=",
+                        FechaCreacion = DateTime.Now,
+                        Activo = true,
+                        Id_persona = 3
+                    }
+                );
             });
 
+         
+            modelBuilder.Entity<DocenteCurso>(entity =>
+            {
+                entity.HasKey(e => e.Id_dictado);
+                entity.Property(e => e.Id_dictado).ValueGeneratedOnAdd();
+
+                entity.HasData(
+                    new { Id_dictado = 1, Id_docente = 3, Id_curso = 1, Cargo = 1 },
+                    new { Id_dictado = 2, Id_docente = 3, Id_curso = 2, Cargo = 1 }
+                );
+            });
+
+            
             modelBuilder.Entity<AlumnoInscripcion>(entity =>
             {
                 entity.HasKey(e => e.Id_inscripcion);
                 entity.Property(e => e.Id_inscripcion).ValueGeneratedOnAdd();
-                entity.Property(e => e.Id_alumno).IsRequired();
-                entity.Property(e => e.Id_curso).IsRequired();
-                entity.Property(e => e.Condicion).HasMaxLength(50);
-                entity.Property(e => e.Nota);
-                entity.HasOne<Persona>()
-                    .WithMany()
-                    .HasForeignKey(ai => ai.Id_alumno)
-                    .OnDelete(DeleteBehavior.Restrict);
-                entity.HasOne<Curso>()
-                    .WithMany()
-                    .HasForeignKey(ai => ai.Id_curso)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
 
+                entity.HasData(
+                    new { Id_inscripcion = 1, Id_alumno = 2, Id_curso = 1, Condicion = "Activo", Nota = (int?)null },
+                    new { Id_inscripcion = 2, Id_alumno = 2, Id_curso = 2, Condicion = "Activo", Nota = (int?)null }
+                );
+            });
         }
     }
 }

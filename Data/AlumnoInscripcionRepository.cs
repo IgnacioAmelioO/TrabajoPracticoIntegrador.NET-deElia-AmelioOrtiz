@@ -13,7 +13,7 @@ namespace Data
         public AlumnoInscripcion Add(AlumnoInscripcion inscripcion)
         {
             using var context = CreateContext();
-            context.AlumnoInscripciones.Add(inscripcion);
+            context.AlumnosInscripciones.Add(inscripcion);
             context.SaveChanges();
             return inscripcion;
         }
@@ -33,7 +33,7 @@ namespace Data
 
             curso.SetCupo(curso.Cupo - 1);
 
-            context.AlumnoInscripciones.Add(inscripcion);
+            context.AlumnosInscripciones.Add(inscripcion);
             context.SaveChanges();
 
             return inscripcion;
@@ -42,10 +42,10 @@ namespace Data
         public bool Delete(int id)
         {
             using var context = CreateContext();
-            var ent = context.AlumnoInscripciones.Find(id);
+            var ent = context.AlumnosInscripciones.Find(id);
             if (ent != null)
             {
-                context.AlumnoInscripciones.Remove(ent);
+                context.AlumnosInscripciones.Remove(ent);
                 context.SaveChanges();
                 return true;
             }
@@ -55,20 +55,20 @@ namespace Data
         public AlumnoInscripcion? Get(int id)
         {
             using var context = CreateContext();
-            return context.AlumnoInscripciones.Find(id);
+            return context.AlumnosInscripciones.Find(id);
         }
 
         public IEnumerable<AlumnoInscripcion> GetAll()
         {
             using var context = CreateContext();
-            return context.AlumnoInscripciones.ToList();
+            return context.AlumnosInscripciones.ToList();
         }
 
         
         public IEnumerable<AlumnoInscripcion> GetByAlumno(int id_alumno)
         {
             using var context = CreateContext();
-            return context.AlumnoInscripciones
+            return context.AlumnosInscripciones
                 .Where(a => a.Id_alumno == id_alumno)
                 .ToList();
         }
@@ -76,7 +76,7 @@ namespace Data
         public IEnumerable<AlumnoInscripcion> GetByCurso(int id_curso)
         {
             using var context = CreateContext();
-            return context.AlumnoInscripciones
+            return context.AlumnosInscripciones
                 .Where(a => a.Id_curso == id_curso)
                 .ToList();
         }
@@ -84,7 +84,7 @@ namespace Data
         public bool Update(AlumnoInscripcion inscripcion)
         {
             using var context = CreateContext();
-            var existing = context.AlumnoInscripciones.Find(inscripcion.Id_inscripcion);
+            var existing = context.AlumnosInscripciones.Find(inscripcion.Id_inscripcion);
             if (existing != null)
             {
                 
@@ -103,7 +103,7 @@ namespace Data
         public bool ExistsByAlumnoCurso(int id_alumno, int id_curso, int? idToExclude = null)
         {
             using var context = CreateContext();
-            var query = context.AlumnoInscripciones.Where(a => a.Id_alumno == id_alumno && a.Id_curso == id_curso);
+            var query = context.AlumnosInscripciones.Where(a => a.Id_alumno == id_alumno && a.Id_curso == id_curso);
             if (idToExclude.HasValue) query = query.Where(a => a.Id_inscripcion != idToExclude.Value);
             return query.Any();
         }
