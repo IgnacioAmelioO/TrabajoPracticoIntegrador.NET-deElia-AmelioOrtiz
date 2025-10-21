@@ -45,15 +45,15 @@ namespace Domain.Model
         {
             if (tipo_persona == "Alumno")
             {
-                Legajo = "A" + id.ToString("D6");
+                Legajo = "A" + id.ToString("D3");
             }
             else if (tipo_persona == "Docente")
             {
-                Legajo = "D" + id.ToString("D6");
+                Legajo = "D" + id.ToString("D3");
             }
             else
             {
-                Legajo = "ADM" + id.ToString("D6");
+                Legajo = "ADM" + id.ToString("D3");
             }
         }
 

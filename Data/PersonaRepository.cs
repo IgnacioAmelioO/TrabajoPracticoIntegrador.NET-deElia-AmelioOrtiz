@@ -16,7 +16,10 @@ namespace Data
         public Persona Add(Persona persona)
         {
             using var context = CreateContext();
-            context.Personas.Add(persona);
+            context.Personas.Add(persona);            
+
+            context.SaveChanges();
+            persona.SetLegajo(persona.Legajo, persona.Tipo_persona, persona.Id_persona);
             context.SaveChanges();
             return persona;
         }

@@ -34,11 +34,12 @@
             cursosButton = new Button();
             Materiasbutton = new Button();
             Comisionesbutton = new Button();
+            ReportesButton = new Button();
             SuspendLayout();
             // 
             // personasButton
             // 
-            personasButton.Location = new Point(75, 45);
+            personasButton.Location = new Point(92, 12);
             personasButton.Name = "personasButton";
             personasButton.Size = new Size(224, 72);
             personasButton.TabIndex = 0;
@@ -48,7 +49,7 @@
             // 
             // especialidadesButton
             // 
-            especialidadesButton.Location = new Point(444, 45);
+            especialidadesButton.Location = new Point(444, 12);
             especialidadesButton.Name = "especialidadesButton";
             especialidadesButton.Size = new Size(224, 72);
             especialidadesButton.TabIndex = 1;
@@ -58,7 +59,7 @@
             // 
             // planesButton
             // 
-            planesButton.Location = new Point(87, 313);
+            planesButton.Location = new Point(92, 128);
             planesButton.Name = "planesButton";
             planesButton.Size = new Size(224, 72);
             planesButton.TabIndex = 2;
@@ -68,9 +69,9 @@
             // 
             // cursosButton
             // 
-            cursosButton.Location = new Point(87, 186);
+            cursosButton.Location = new Point(92, 256);
             cursosButton.Name = "cursosButton";
-            cursosButton.Size = new Size(201, 66);
+            cursosButton.Size = new Size(224, 72);
             cursosButton.TabIndex = 3;
             cursosButton.Text = "Cursos";
             cursosButton.UseVisualStyleBackColor = true;
@@ -78,9 +79,9 @@
             // 
             // Materiasbutton
             // 
-            Materiasbutton.Location = new Point(444, 186);
+            Materiasbutton.Location = new Point(444, 128);
             Materiasbutton.Name = "Materiasbutton";
-            Materiasbutton.Size = new Size(224, 61);
+            Materiasbutton.Size = new Size(224, 72);
             Materiasbutton.TabIndex = 4;
             Materiasbutton.Text = "Materias";
             Materiasbutton.UseVisualStyleBackColor = true;
@@ -88,19 +89,31 @@
             // 
             // Comisionesbutton
             // 
-            Comisionesbutton.Location = new Point(444, 317);
+            Comisionesbutton.Location = new Point(444, 256);
             Comisionesbutton.Name = "Comisionesbutton";
-            Comisionesbutton.Size = new Size(224, 64);
+            Comisionesbutton.Size = new Size(224, 72);
             Comisionesbutton.TabIndex = 5;
             Comisionesbutton.Text = "Comisiones";
             Comisionesbutton.UseVisualStyleBackColor = true;
             Comisionesbutton.Click += Comisionesbutton_Click;
+            // 
+            // ReportesButton
+            // 
+            ReportesButton.BackColor = Color.DodgerBlue;
+            ReportesButton.Location = new Point(268, 350);
+            ReportesButton.Name = "ReportesButton";
+            ReportesButton.Size = new Size(224, 72);
+            ReportesButton.TabIndex = 6;
+            ReportesButton.Text = "Reportes";
+            ReportesButton.UseVisualStyleBackColor = false;
+            ReportesButton.Click += reportesButton_Click;
             // 
             // Inicio
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(ReportesButton);
             Controls.Add(Comisionesbutton);
             Controls.Add(Materiasbutton);
             Controls.Add(cursosButton);
@@ -120,5 +133,6 @@
         private Button cursosButton;
         private Button Materiasbutton;
         private Button Comisionesbutton;
+        private Button ReportesButton;
     }
 }

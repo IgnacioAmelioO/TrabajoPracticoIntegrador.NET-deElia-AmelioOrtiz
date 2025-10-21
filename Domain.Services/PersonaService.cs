@@ -24,6 +24,7 @@ namespace Domain.Services
             personaRepository.Add(persona);
 
             dto.Id_persona = persona.Id_persona; 
+            
 
             return dto;
         }

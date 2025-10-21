@@ -146,4 +146,6 @@ app.MapUsuarioEndpoints();
 // ================= ALUMNO INSCRIPCIONES CRUD =================
 app.MapAlumnoInscripcionEndpoints();
 
+app.MapReporteEndpoints();
+
 app.Run();

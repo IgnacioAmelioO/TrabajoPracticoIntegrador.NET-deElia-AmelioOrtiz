@@ -57,5 +57,11 @@ namespace WindowsForm
             ComisionesLista comisionesLista = new ComisionesLista();
             comisionesLista.ShowDialog();
         }
+
+        private void reportesButton_Click(object sender, EventArgs e)
+        {
+            VistaReportes reportesForm = new VistaReportes();
+            reportesForm.ShowDialog();
+        }
     }
 }
