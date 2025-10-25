@@ -61,18 +61,35 @@ namespace TrabajoPracticoIntegrador
                 }
                 finally
                 {
-                    // Intentar eliminar el archivo temporal después de un breve retraso
+                    // Intentar eliminar el archivo temporal después de leer los bytes
                     if (rutaArchivo != null && File.Exists(rutaArchivo))
                     {
                         try
                         {
-                            // Esperar un poco para asegurar que otros procesos hayan terminado de usar el archivo
-                            await Task.Delay(500);
+                            // Esperar un poco y luego eliminar el archivo temporal
+                            await Task.Delay(100);
                             File.Delete(rutaArchivo);
                         }
                         catch
                         {
-                            // Ignorar errores de eliminación
+                            // Si no se puede eliminar inmediatamente, programar eliminación diferida
+                            _ = Task.Run(async () =>
+                            {
+                                for (int i = 0; i < 5; i++)
+                                {
+                                    await Task.Delay(1000);
+                                    try
+                                    {
+                                        if (File.Exists(rutaArchivo))
+                                            File.Delete(rutaArchivo);
+                                        break;
+                                    }
+                                    catch
+                                    {
+                                        // Continuar intentando
+                                    }
+                                }
+                            });
                         }
                     }
                 }

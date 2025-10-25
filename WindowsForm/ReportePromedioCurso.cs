@@ -79,27 +79,6 @@ namespace WindowsForm
                 
                 MessageBox.Show($"Reporte generado correctamente:\n{ruta}", "Éxito",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
-                // Preguntar si desea abrir el archivo generado
-                var resultado = MessageBox.Show("¿Desea abrir el reporte ahora?", "Reporte generado",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                
-                if (resultado == DialogResult.Yes)
-                {
-                    try
-                    {
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = ruta,
-                            UseShellExecute = true
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"No se pudo abrir el archivo: {ex.Message}", "Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
             }
             catch (UnauthorizedAccessException)
             {

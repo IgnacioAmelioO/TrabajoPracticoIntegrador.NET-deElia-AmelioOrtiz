@@ -15,30 +15,36 @@ namespace Api.Clients
                 await EnsureAuthenticatedAsync();
                 using var httpClient = await CreateHttpClientAsync();
 
-                // Llamada a la API para generar el reporte
                 HttpResponseMessage response = await httpClient.GetAsync($"reports/promedioCurso/{idCurso}");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Recibir el PDF como un array de bytes
+
                     byte[] pdfBytes = await response.Content.ReadAsByteArrayAsync();
 
-                    // Guardar el archivo localmente con un nombre único
                     string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    string fileName = $"ReporteCurso_{idCurso}_{timestamp}.pdf";
-                    string filePath = Path.Combine(Path.GetTempPath(), fileName); // Usar carpeta temporal del sistema
+                    string randomSuffix = Guid.NewGuid().ToString("N")[..8]; 
+                    string fileName = $"ReporteCurso_{idCurso}_{timestamp}_{randomSuffix}.pdf";
 
-                    // Escribir el archivo utilizando un bloque using para asegurar que se liberen recursos
-                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    string projectDirectory = GetProjectDirectory();
+                    string reportsDirectory = Path.Combine(projectDirectory, "Reportes");
+                    string filePath = Path.Combine(reportsDirectory, fileName);
+
+                    if (!Directory.Exists(reportsDirectory))
+                    {
+                        Directory.CreateDirectory(reportsDirectory);
+                    }
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                     {
                         await fileStream.WriteAsync(pdfBytes, 0, pdfBytes.Length);
+                        await fileStream.FlushAsync();
                     }
-                    
+
                     return filePath;
                 }
                 else
                 {
-                    // Manejar errores específicos según el código de estado
                     if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         throw new Exception("No se encontró el curso especificado.");
@@ -66,12 +72,29 @@ namespace Api.Clients
             }
             catch (UnauthorizedAccessException)
             {
-                throw; // Reenviar excepciones de autenticación para manejo en la UI
+                throw; 
             }
             catch (Exception ex) when (!(ex is UnauthorizedAccessException))
             {
                 throw new Exception($"Error al generar reporte: {ex.Message}", ex);
             }
+        }
+
+        private static string GetProjectDirectory()
+        {
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string searchDir = currentDirectory;
+            
+            while (searchDir != null && !string.IsNullOrEmpty(searchDir))
+            {
+                if (Path.GetFileName(searchDir) == "TrabajoPracticoIntegrador.NET-deElia-AmelioOrtiz")
+                {
+                    return searchDir;
+                }              
+                DirectoryInfo parentDir = Directory.GetParent(searchDir);
+                searchDir = parentDir?.FullName;
+            }
+            return currentDirectory;
         }
     }
 }
