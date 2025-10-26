@@ -1,0 +1,243 @@
+﻿@page "/alumnoinscripciones"
+@using DTOs
+@using Api.Clients
+@inject IJSRuntime JSRuntime
+
+
+
+
+<PageTitle>Inscripciones de Alumnos</PageTitle>
+
+<div class="container-fluid">
+    <h3>Inscripciones</h3>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <div class="mb-3 row g-2 align-items-center">
+        <div class="col-auto">
+            <label class="col-form-label">Alumno:</label>
+        </div>
+        <div class="col-auto">
+            <select class="form-select" @onchange="OnAlumnoChanged" disabled="@(alumnos == null || alumnos.Count == 0)">
+                <option value="">-- Seleccionar alumno --</option>
+                @if (alumnos != null)
+                {
+                    @foreach (var a in alumnos)
+                    {
+                        <option value="@a.Id_persona" selected="@(a.Id_persona == selectedAlumnoId ? "selected" : null)">@a.Apellido, @a.Nombre (@a.Legajo)</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="OpenInscribirseModal" disabled="@(selectedAlumnoId == null)">Inscribirse</button>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="d-flex justify-content-center my-4">
+            <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Curso</th>
+                        <th>Condición</th>
+                        <th>Nota</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (inscripciones != null && inscripciones.Any())
+                    {
+                        @foreach (var i in inscripciones)
+                        {
+                            <tr>
+                                <td>@i.Id_inscripcion</td>
+                                <td>@(i.CursoDesc )</td>
+                                <td>@i.Condicion</td>
+                                <td>@(i.Nota.HasValue ? i.Nota.Value.ToString() : "-")</td>
+                               
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">No hay inscripciones para el alumno seleccionado.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<AlumnoInscripcionModal @ref="inscripcionModal" OnInscribed="HandleInscribed" />
+
+@code {
+    
+    private List<PersonaDTO>? alumnos;
+    private int? selectedAlumnoId;
+    private List<InscripcionDTO> inscripciones = new();
+    private List<CursoDTO> cursos = new();
+    private bool loading = true;
+    private string errorMessage = string.Empty;
+
+   
+    private AlumnoInscripcionModal? inscripcionModal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAlumnos();
+    }
+
+    private async Task LoadAlumnos()
+    {
+        loading = true;
+        errorMessage = string.Empty;
+        try
+        {
+            var all = await PersonaApiClient.GetAllAsync();
+            alumnos = all?.Where(p => string.Equals(p.Tipo_persona, "Alumno", StringComparison.OrdinalIgnoreCase)).ToList() ?? new List<PersonaDTO>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error cargando alumnos: " + ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task OnAlumnoChanged(ChangeEventArgs e)
+    {
+        errorMessage = string.Empty;
+        if (int.TryParse(e?.Value?.ToString(), out int id))
+        {
+            selectedAlumnoId = id;
+            await LoadInscripciones(id);
+        }
+        else
+        {
+            selectedAlumnoId = null;
+            inscripciones.Clear();
+        }
+    }
+
+    private async Task LoadInscripciones(int alumnoId)
+    {
+        loading = true;
+        errorMessage = string.Empty;
+        inscripciones.Clear();
+
+        try
+        {
+            
+            var list = await AlumnoInscripcionApiClient.GetByAlumnoAsync(alumnoId);
+            inscripciones = (list ?? new List<AlumnoInscripcionDTO>())
+                .Select(i => new InscripcionDTO
+                {
+                    Id_inscripcion = i.Id_inscripcion,
+                    Id_alumno = i.Id_alumno,
+                    Id_curso = i.Id_curso,
+                    Condicion = i.Condicion,
+                    Nota = i.Nota
+                }).ToList();
+
+            
+            var cursosApi = await CursoApiClient.GetAllAsync();
+            cursos = cursosApi != null ? cursosApi.ToList() : new List<CursoDTO>();
+
+            var materiasApi = await MateriaApiClient.GetAllAsync();
+            var materias = materiasApi != null ? materiasApi.ToList() : new List<MateriaDTO>();
+
+            var comisionesApi = await ComisionApiClient.GetAllAsync();
+            var comisiones = comisionesApi != null ? comisionesApi.ToList() : new List<ComisionDTO>();
+
+            
+            var cursoMap = cursos.ToDictionary(
+                c => c.Id_curso,
+                c =>
+                {
+                    var materiaDesc = materias.FirstOrDefault(m => m.Id_materia == c.Id_materia)?.Desc_materia ?? $"Materia {c.Id_materia}";
+                    var comisionDesc = comisiones.FirstOrDefault(co => co.Id_comision == c.Id_comision)?.Desc_comision ?? $"Comisión {c.Id_comision}";
+                    return $"{materiaDesc} — {comisionDesc} - {c.Anio_calendario}";
+                });
+
+            
+            foreach (var ins in inscripciones)
+            {
+                if (ins.Id_curso != 0 && cursoMap.TryGetValue(ins.Id_curso, out var desc))
+                    ins.CursoDesc = desc;
+                else
+                    ins.CursoDesc = "-";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error cargando inscripciones: " + ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+
+    private async Task OpenInscribirseModal()
+    {
+        if (selectedAlumnoId == null) return;
+
+        cursos = (await CursoApiClient.GetAllAsync())?.ToList() ?? new List<CursoDTO>();
+
+        var inscripcionesAlumno = inscripciones
+        .Select(i => new AlumnoInscripcionDTO
+        {
+            Id_inscripcion = i.Id_inscripcion,
+            Id_alumno = i.Id_alumno,
+            Id_curso = i.Id_curso,
+            Condicion = i.Condicion,
+            Nota = i.Nota
+        })
+        .ToList();
+
+        if (inscripcionModal != null)
+        {
+            await inscripcionModal.ShowAddModal(selectedAlumnoId.Value, inscripcionesAlumno);
+        }
+        else
+        {
+            errorMessage = "El modal de inscripcion no está disponible.";
+        }
+    }
+
+    private async Task HandleInscribed()
+    {
+        if (selectedAlumnoId != null)
+            await LoadInscripciones(selectedAlumnoId.Value);
+    }
+
+  
+  
+    public class InscripcionDTO
+    {
+        public int Id_inscripcion { get; set; }
+        public int Id_alumno { get; set; }
+        public int Id_curso { get; set; }
+        public string? Condicion { get; set; }
+        public int? Nota { get; set; }
+       
+        public string? CursoDesc { get; set; }
+    }
+}

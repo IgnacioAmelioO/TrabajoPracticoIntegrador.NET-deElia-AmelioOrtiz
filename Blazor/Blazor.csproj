@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Components\AlumnoInscripcion.razor" />
+    <Content Remove="Pages\InscripcionModal.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Api.Clients\Api.Clients.csproj" />
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
   </ItemGroup>

@@ -1,0 +1,149 @@
+@using DTOs
+@using Api.Clients
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<div class="modal fade @(showModal ? "show d-block" : "")" tabindex="-1" style="background: rgba(0,0,0,0.4);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Inscribirse en curso</h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (loading)
+                {
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+                    </div>
+                }
+                else if (!availableCursos.Any())
+                {
+                    <div class="alert alert-info">No hay cursos disponibles para inscribirse.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Materia</th>
+                                    <th>Comisión</th>
+                                    <th>Año</th>
+                                    <th>Cupo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var c in availableCursos)
+                                {
+                                    <tr>
+                                        <td>@c.Id_curso</td>
+                                        <td>@(GetMateriaDesc(c.Id_materia))</td>
+                                        <td>@(GetComisionDesc(c.Id_comision))</td>
+                                        <td>@c.Anio_calendario</td>
+                                        <td>@c.Cupo</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" @onclick="() => Inscribirse(c.Id_curso)">Inscribirse</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="Close">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool showModal;
+    private bool loading;
+    private List<CursoDTO> cursos = new();
+    private List<MateriaDTO> materias = new();
+    private List<ComisionDTO> comisiones = new();
+    private List<CursoDTO> availableCursos = new();
+    private int currentAlumnoId;
+    private List<AlumnoInscripcionDTO> existingInscripciones = new();
+
+    [Parameter] public EventCallback OnInscribed { get; set; }
+
+    public async Task ShowAddModal(int alumnoId, List<AlumnoInscripcionDTO>? existentes = null)
+    {
+        currentAlumnoId = alumnoId;
+        existingInscripciones = existentes?.ToList() ?? new List<AlumnoInscripcionDTO>();
+        await LoadDataSafe();
+        FilterAvailable();
+        showModal = true;
+        StateHasChanged();
+    }
+
+    private void Close() => showModal = false;
+
+    private async Task LoadDataSafe()
+    {
+        try
+        {
+            loading = true;
+            var t1 = CursoApiClient.GetAllAsync();
+            var t2 = MateriaApiClient.GetAllAsync();
+            var t3 = ComisionApiClient.GetAllAsync();
+
+            await Task.WhenAll(t1, t2, t3);
+
+            cursos = (await t1)?.ToList() ?? new List<CursoDTO>();
+            materias = (await t2)?.ToList() ?? new List<MateriaDTO>();
+            comisiones = (await t3)?.ToList() ?? new List<ComisionDTO>();
+        }
+        catch
+        {
+            cursos = new List<CursoDTO>();
+            materias = new List<MateriaDTO>();
+            comisiones = new List<ComisionDTO>();
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void FilterAvailable()
+    {
+        var inscritosIds = existingInscripciones.Select(i => i.Id_curso).ToHashSet();
+        availableCursos = cursos
+            .Where(c => c.Cupo > 0 && !inscritosIds.Contains(c.Id_curso))
+            .OrderBy(c => c.Anio_calendario)
+            .ToList();
+    }
+
+    private string GetMateriaDesc(int idMateria) => materias.FirstOrDefault(m => m.Id_materia == idMateria)?.Desc_materia ?? $"Materia {idMateria}";
+    private string GetComisionDesc(int idComision) => comisiones.FirstOrDefault(c => c.Id_comision == idComision)?.Desc_comision ?? $"Comisión {idComision}";
+
+    private async Task Inscribirse(int idCurso)
+    {
+        try
+        {
+            var nueva = new AlumnoInscripcionDTO
+            {
+                Id_inscripcion = 0,
+                Id_alumno = currentAlumnoId,
+                Id_curso = idCurso,
+                Nota = null,
+                Condicion = "Activo"
+            };
+
+            await AlumnoInscripcionApiClient.AddAsync(nueva);
+            showModal = false;
+            await OnInscribed.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al inscribirse: " + ex.Message);
+        }
+    }
+}
